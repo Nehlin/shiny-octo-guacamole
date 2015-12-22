@@ -4,7 +4,7 @@ abstract class Side
 case object Left extends Side
 case object Right extends Side
 
-abstract class Rule(f: Int, t: Int) {
+abstract class Rule(f: Int, t: Int) extends Ordered[Rule] {
   val from = f
   val to = t
   def stringFun(fromString:String, toString:String, condition:Option[String]): String = {
@@ -33,18 +33,27 @@ abstract class Rule(f: Int, t: Int) {
 
 
 
-  def testFromState(configuration: Configuration, index: Int): Boolean = {
-    configuration.aAtIndex(index) == from
+  def testFromState(configuration: Vector[Int], index: Int): Boolean = {
+    configuration(index) == from
   }
-  def test(configuration: Configuration, index: Int): Boolean
-  def execute(configuration: Configuration, index: Int): Configuration = {
+  def test(configuration: Vector[Int], index: Int): Boolean
+  def execute(configuration: Vector[Int], index: Int): Vector[Int] = {
     configuration.updated(index, to)
   }
-  def testAndExecute(configuration: Configuration, index: Int): Option[Configuration] = {
+  def testAndExecute(configuration: Vector[Int], index: Int): Option[Vector[Int]] = {
     if (test(configuration, index)) {
       Some(execute(configuration, index))
     } else {
       None
+    }
+  }
+
+  def compare(rule: Rule): Int = {
+    val compareFrom = from.compareTo(rule.from)
+    if (compareFrom != 0) {
+      compareFrom
+    } else {
+      to.compareTo(rule.to)
     }
   }
 }
@@ -54,7 +63,7 @@ case class Unrestricted(f: Int, t: Int) extends Rule(f, t) {
   def toString(internalToName: Map[Int, String]) = {
     stringFun(internalToName, from, to, None)
   }
-  def test(configuration: Configuration, index: Int): Boolean = testFromState(configuration, index)
+  def test(configuration: Vector[Int], index: Int): Boolean = testFromState(configuration, index)
 }
 
 abstract class QuantifierRule(f: Int, t: Int, st: Set[Int], si: Side, qs: String) extends Rule(f, t) {
@@ -81,28 +90,28 @@ abstract class QuantifierRule(f: Int, t: Int, st: Set[Int], si: Side, qs: String
 
 
 
-  def statesForSide(configuration: Configuration, index: Int): SeqView[Int, Vector[Int]] = {
+  def statesForSide(configuration: Vector[Int], index: Int): SeqView[Int, Vector[Int]] = {
     side match {
-      case Left => configuration.leftOf(index)
-      case Right => configuration.rightOf(index)
+      case Left => Configuration.leftOf(configuration, index)
+      case Right => Configuration.rightOf(configuration, index)
     }
   }
 
-  def testQuantifier(configuration: Configuration, index: Int): Boolean
+  def testQuantifier(configuration: Vector[Int], index: Int): Boolean
 
-  def test(configuration: Configuration, index: Int): Boolean = {
+  def test(configuration: Vector[Int], index: Int): Boolean = {
     testFromState(configuration, index) && testQuantifier(configuration, index)
   }
 }
 
 case class Existential(f: Int, t: Int, st: Set[Int], si: Side) extends QuantifierRule(f, t, st, si, "\u2203") {
-  def   testQuantifier(configuration: Configuration, index: Int): Boolean = {
+  def   testQuantifier(configuration: Vector[Int], index: Int): Boolean = {
     val candidateStates = statesForSide(configuration, index)
     candidateStates.exists(st => conditionStates.contains(st))
   }
 }
 case class Universal(f: Int, t: Int, st: Set[Int], si: Side) extends QuantifierRule(f, t, st, si, "\u2200") {
-  def testQuantifier(configuration: Configuration, index: Int): Boolean = {
+  def testQuantifier(configuration: Vector[Int], index: Int): Boolean = {
     val candidateStates = statesForSide(configuration, index)
     candidateStates.forall(st => conditionStates.contains(st))
   }

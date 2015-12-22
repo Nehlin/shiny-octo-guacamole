@@ -65,14 +65,6 @@ class Protocol(fileName:String) {
   }
 
   val rules = ruleLines.map(ruleString => parseRule(ruleString)).toSet
-  private val initialRules = InitialConfigurations.parse(initialConfigurationLine, nameToInternal)
-  val testString = InitialConfigurations.makeTestRegex(initialRules)
-  val initialVars = InitialConfigurations.varsFromRules(initialRules)
-
-  def makeInitialConfigurations(length: Int): Set[Configuration] = {
-    InitialConfigurations.make(length, initialVars, testString)
-  }
-
-  //println(initialConfigurationLine)
+  val initialConfiguration = new InitialConfigurations(initialConfigurationLine, nameToInternal)
 
 }

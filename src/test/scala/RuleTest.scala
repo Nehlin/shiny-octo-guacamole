@@ -7,7 +7,7 @@ class RuleTest extends FlatSpec with Matchers {
   val universalLeft = new Universal(1, 2, Set(0, 1), Left)
   val universalRight = new Universal(1, 2, Set(3, 4), Right)
   val unrestricted = new Unrestricted(1, 2)
-  val configuration = new Configuration(Vector(0, 1, 2, 3, 4))
+  val configuration = Vector(0, 1, 2, 3, 4)
 
   // 2, 3, 4 should exist on left
   "An existential quantifier" should "evaluate to true iff there is at least one required state at the left side of index" in {
