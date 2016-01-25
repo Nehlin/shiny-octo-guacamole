@@ -3,7 +3,7 @@ import java.nio.file.{Files, Paths}
 
 object main {
   def main(args:Array[String]): Unit = {
-    val p = new Protocol("test_data/burns.pc")
+    val p = new Protocol("test_data/burns.txt")
 
 
     timeFunction(() => testBurnsNaive(p))

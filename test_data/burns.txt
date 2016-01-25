@@ -1,0 +1,25 @@
+% Burns protocol for mutual exclusion
+% All available states
+States:
+Green
+White
+Black
+Yellow
+Blue
+Red
+A
+B
+C
+
+Initial configurations:
+Green
+
+Rules:
+Green -> White
+White E L (Yellow, Red, Blue) -> Green
+White A L (Green, White, Black) -> Black
+Black -> Yellow
+Yellow E L (Yellow, Red, Blue) -> Green
+Yellow A L (Green, White, Black) -> Blue
+Blue A R (Green, White, Black) -> Red
+Red -> Green
