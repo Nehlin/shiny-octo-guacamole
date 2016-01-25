@@ -197,21 +197,83 @@
     </div>
 
     <p>
-        The protocol file consists of three parts: a declaration of available states, an initial configuration and a
-        set of rules, in that order. Any line starting with a '%' or any empty line is ignored.
+        The protocol file consists of three parts: a declaration of available states, initial configurations and a
+        set of rules, in that order. Any line starting with a '%' or any empty line is ignored. Each declaration type
+        will be shown with example code. Combining the example code snippets yields a valid protocol file
+        (but probably not of any meaningful protocol).
     </p>
 
     <h2>States</h2>
     <p>
         The state declaration begins with a line with the text "States:". Each following line declares the name of a
         state, until the starting line of the initial configuration. A valid state name is a string consisting of
-        (A-Z, a-z, 0-9, _).
-    </p>
-    <p>
-        As a convenience, some reserved state names can be used to generate dot-files with coloured states instead of
-        named ones. A configuration with states 
+        (A-Z, a-z, 0-9, _). State names are case sensitive.
     </p>
 
+    <p>
+        As a convenience, some state names will create coloured, rather than named states in the generated .dot-files.
+        States named as any of the following colours will be treated as a colour: Red, Green, Blue, Yellow, Black,
+        White. This list can easily be extended in the function colourForName in Dot.scala. When determining whether
+        to display a colour or a name, case is ignored. (Note that this means that "black" and "BLACK" represent
+        different states but will both be displayed the same in a .dot-file. This should not be a problem unless you
+        make it one.)
+    </p>
+    <p>
+        Below is the resulting .dot-representation of a configuration with states named
+        ["Green", "s1", "YeLLoW", "Panda"].
+    </p>
+    <img src="img/green_s_yellow_panda.svg">
+    <div class="code">
+        % This defines the states called "Red", "Green", "Blue", "Yellow", "Black", "White"<br>
+        States:<br>
+        Red<br>
+        Green<br>
+        Blue<br>
+        Yellow<br>
+        Black<br>
+        White<br>
+
+    </div>
+
+    <h2>Initial configurations</h2>
+    <p>
+        The initial configuration declaration begins with a line with the text "Initial configurations:". The following
+        line should contain a state name. All initial configurations are repetitions of that state.
+    </p>
+    <div class="code">
+        % This defines Green as the initial configuration state.<br>
+        % All initial configurations will be of the form Green+<br>
+        Initial configurations:<br>
+        Green<br>
+
+    </div>
+
+    <h2>Rules</h2>
+    <p>
+        There are 3 types of possible rules: Unrestricted, Existential and Universal. Existential and Universal rules
+        may apply to all states, or to the states to the left (L), or right (R) of the current
+        state. The rule declaration begins with a line with the text "Rules:". All following lines contain a single
+        rule. The following examples specify how rule types and sides are specified. No rule type means Unrestricted,
+        no side specified means that it applies to all states.
+    </p>
+    <div class="code">
+        Rules:<br>
+        % Unrestricted rule from Red to Green<br>
+        Red -> Green<br>
+        <br>
+        % Existential rule (E): From Green to Yellow if there exists a Blue state anywhere<br>
+        Green E (Blue) -> Yellow<br>
+        <br>
+        % Existential rule (E): From Yellow to Blue if there exists a Red or Green state to the left (L)<br>
+        Yellow E L (Red, Green) -> Blue<br>
+        <br>
+        % Universal rule (A): From Blue to Black if all states are Red, Green or Yellow<br>
+        Blue A (Red, Green, Yellow) -> Black<br>
+        <br>
+        % Universal rule (A): From Black to White if all states to the right (R) are White or Red<br>
+        Black A R (White, Red) -> White
+
+    </div>
     <h1>
         <span class="label label-default">Default</span>
         <span class="label label-primary">Primary</span>

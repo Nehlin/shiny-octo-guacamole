@@ -9,9 +9,9 @@ object main {
     timeFunction(() => testBurnsNaive(p))
     timeFunction(() => testBurns(p))
 
-    val m = Map(0 -> "Red", 1 -> "s1")
+    val m = Map(0 -> "Green", 1 -> "s1", 2 -> "YeLLoW", 3 -> "Panda")
 
-    Files.write(Paths.get("output/example.dot"), Dot.makeConfigurations(Set(Vector(0, 1)), m).getBytes(StandardCharsets.UTF_8))
+    Files.write(Paths.get("output/example.dot"), Dot.makeConfigurations(Set(Vector(0, 1, 2, 3)), m).getBytes(StandardCharsets.UTF_8))
   }
 
   def timeFunction(f: () => Unit): Unit = {
