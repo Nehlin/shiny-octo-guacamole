@@ -21,6 +21,7 @@ class Protocol(fileName:String) {
   private val ruleLines = lines.drop(rulesIndex + 1)
 
   val stateNames = stateLines
+  val alphabetLength = stateNames.length
   val nameToInternal = stateNames.zipWithIndex.toMap
   val internalToName = stateNames.zipWithIndex.map(_.swap).toMap
 

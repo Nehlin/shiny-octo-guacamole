@@ -1,20 +1,26 @@
 import collection.mutable.{ HashMap => MHashMap, MultiMap => MMultiMap, Set => MSet }
+import scala.collection.SeqView
 
 object Concretisation {
 
-  type RoMap = MHashMap[Vector[Int], MSet[Int]] with MMultiMap[Vector[Int], Int]
+  type SubView = SeqView[Int, Vector[Int]]
+  type RoMap = MHashMap[Int, MSet[Vector[Int]]] with MMultiMap[Int, Vector[Int]]
+
 
   // TODO: use vector views instead of .tail
-  def makeMap(views: Set[Vector[Int]]): RoMap = {
-
-    val mm = new MHashMap[Vector[Int], MSet[Int]] with MMultiMap[Vector[Int], Int]
-
+  def addToRoMap(views: Set[Vector[Int]], roMap: RoMap): Unit = {
     views.map(view => {
-      val key = view.take(view.length - 1)
-      mm.addBinding(key, view.last)
+      val key = view.head
+      roMap.addBinding(key, view.drop(1))
     })
+  }
 
-    mm
+  def makeRoMap(views: Set[Vector[Int]]): RoMap = {
+    val roMap = new MHashMap[Int, MSet[Vector[Int]]] with MMultiMap[Int, Vector[Int]]
+
+    addToRoMap(views, roMap)
+
+    roMap
   }
 
   // Naive concretisation function. For testing purposes only!
@@ -32,9 +38,9 @@ object Concretisation {
        }
     }
 
-    (0 until math.pow(aLen.toDouble, (length).toDouble).toInt).foreach(num => {
-      val candidate = configForNum(num, length - 1)
-      val cViews = ViewsFromConfiguration.make(candidate, length - 1)
+    (0 until math.pow(aLen.toDouble, (length + 1).toDouble).toInt).foreach(num => {
+      val candidate = configForNum(num, length)
+      val cViews = Views.fromConfiguration(candidate, length)
       if (cViews.subsetOf(views)) {
         mSet += candidate
       }
@@ -42,51 +48,54 @@ object Concretisation {
     mSet.toSet
   }
 
-  def g(views: Set[Vector[Int]], rightOf: RoMap): Set[Vector[Int]] = {
-    def matchView(view: Vector[Int], pos: Int): Option[Set[Vector[Int]]] = {
-      val beginning = view.take(view.length - 1)
-      val end = view.drop(1)
-      val last = view(view.length - 1)
+  def f(views: Set[Vector[Int]], length: Int, roMap: RoMap): Set[Vector[Int]] = {
 
-      if (
-        rightOf.isDefinedAt(beginning) &&
-        rightOf(beginning).contains(last) &&
-        rightOf.isDefinedAt(end)
-      ) {
-        val newViews = rightOf(end).map(rightState => {
-          view :+ rightState
-        })
-        Option(newViews.toSet)
+    val aLen = 10
+
+    // TODO: get real alphabet length
+    val viewIdentifiers = views.map(v => Configuration.makeIdentifier(v, aLen))
+
+    def generateCandidates(view: Vector[Int]): Option[MSet[Vector[Int]]] = {
+
+      val secondState = view.tail.head
+
+      if (roMap.isDefinedAt(secondState)) {
+        val endings = roMap(secondState)
+        Some(endings.map(ending => view.head +: secondState +: ending))
       } else {
         None
       }
     }
 
-    for (view <- views) {
-      println(matchView(view, 0))
-    }
+    def testCandidate(candidate: Vector[Int], existing: MSet[Configuration.Identifier]): Boolean = {
 
-    views
-  }
+      def candidateIdentifier = Configuration.makeIdentifier(candidate, aLen)
 
-  def f(views: Set[Vector[Int]], existing: Set[Vector[Int]], map: MHashMap[Vector[Int], MSet[Int]] with MMultiMap[Vector[Int], Int]) = {
-    val mSet = MSet[Vector[Int]]()
-
-    for (view <- views) {
-      println(view.tail)
-      if (map.isDefinedAt(view.tail)) {
-        println("hi")
-        val newConfigs = map(view.tail).map(ending => view :+ ending)
-        //mSet ++= newConfigs
-        newConfigs.foreach(nc => {
-          if (!existing.contains(nc)) {
-            mSet += nc
+      def testCandidate_(pos: Int): Boolean = {
+        if (pos == candidate.length) {
+          existing.add(candidateIdentifier)
+          true
+        } else {
+          val subVecIdentifier = Configuration.makeIdentifierSkip(candidate, aLen, pos)
+          if (viewIdentifiers.contains(subVecIdentifier)) {
+            testCandidate_(pos + 1)
+          } else {
+            false
           }
-        })
+        }
+      }
+
+      if (existing.contains(candidateIdentifier)) {
+        false
+      } else {
+        testCandidate_(0)
       }
     }
 
-    mSet.toSet
+    val candidates = views.map(generateCandidates).flatten.flatten
+    val existing = MSet[Configuration.Identifier]()
+    candidates.filter(candidate => testCandidate(candidate, existing))
   }
 
+  def generate(views: Set[Vector[Int]], length: Int, roMap: RoMap): Set[Vector[Int]] = f(views, length, roMap)
 }

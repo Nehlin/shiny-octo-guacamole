@@ -1,8 +1,8 @@
 import scala.collection.mutable.{Set => MSet}
 
-object Reachability {
+object Post {
 
-  def postGeneral[A](configuration: Vector[Int],
+  private def general[A](configuration: Vector[Int],
                          rules: Set[Rule],
                          ruleEvaluator: (Vector[Int], Rule, Int) => Option[A]): Set[A] = {
 
@@ -15,11 +15,11 @@ object Reachability {
     })
   }
 
-  def post(configuration: Vector[Int],
+  def single(configuration: Vector[Int],
                      rules: Set[Rule]): Set[Vector[Int]] = {
 
     def ruleEvaluator(configuration: Vector[Int], rule: Rule, index: Int) = rule.testAndExecute(configuration, index)
-    postGeneral(configuration, rules, ruleEvaluator)
+    general(configuration, rules, ruleEvaluator)
   }
 
 
@@ -32,11 +32,11 @@ object Reachability {
         case None => None
       }
     }
-    postGeneral(configuration, rules, ruleEvaluator)
+    general(configuration, rules, ruleEvaluator)
   }
 
   /* Saves transitions. For printing purposes. */
-  def iteratedPostWithTransitions(configurations: Set[Vector[Int]],
+  def iteratedWithTransitions(configurations: Set[Vector[Int]],
                               rules: Set[Rule]): Set[(Vector[Int], Int, Rule, Vector[Int])] = {
 
     var accumulatedConfigurations = configurations
@@ -63,12 +63,12 @@ object Reachability {
     accumulatedCT
   }
 
-  def iteratedPost(configurations: Set[Vector[Int]], rules: Set[Rule]): Set[Vector[Int]] = {
+  def iterated(configurations: Set[Vector[Int]], rules: Set[Rule]): Set[Vector[Int]] = {
     var accumulatedConfigurations = configurations
     var newConfigurations = configurations
 
     while(newConfigurations.nonEmpty) {
-      val resultingConfigurations = newConfigurations.flatMap(configuration => post(configuration, rules))
+      val resultingConfigurations = newConfigurations.flatMap(configuration => single(configuration, rules))
       newConfigurations = resultingConfigurations -- accumulatedConfigurations
       accumulatedConfigurations = accumulatedConfigurations | newConfigurations
     }

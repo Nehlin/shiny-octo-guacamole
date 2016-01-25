@@ -1,6 +1,6 @@
 import org.scalatest._
 
-class ReachabilityTest extends FlatSpec with Matchers {
+class PostTest extends FlatSpec with Matchers {
 
   val configurationSingle = Vector(1, 0, 0, 2, 0)
   val rulesSingle: Set[Rule] = Set(
@@ -45,10 +45,10 @@ class ReachabilityTest extends FlatSpec with Matchers {
   )
 
   "Forward reachability" should "work for single configurations" in {
-    Reachability.post(configurationSingle, rulesSingle) should be (targetConfigurationsSingle)
+    Post.single(configurationSingle, rulesSingle) should be (targetConfigurationsSingle)
   }
   
   "Forward reachability" should "work for sets of configurations" in {
-    Reachability.iteratedPost(configurationsMultiple, rulesMultiple) should be (targetConfigurationsMultiple)
+    Post.iterated(configurationsMultiple, rulesMultiple) should be (targetConfigurationsMultiple)
   }
 }

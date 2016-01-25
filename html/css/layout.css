@@ -1,0 +1,18 @@
+a.anchor {
+    background-color: #1b6d85;
+    display: block;
+    position: relative;
+    top: -50px;
+    height: 1px;
+    visibility: hidden;
+}
+
+div.code {
+    min-width: 100%;
+    padding: 3px;
+    display: inline-block;
+    background-color: #222;
+    color: #ddd;
+    font-weight: bold;
+    font-family: monospace;
+}

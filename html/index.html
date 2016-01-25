@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Bootstrap 101 Template</title>
+
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap-theme.min.css" rel="stylesheet">
+    <link href="css/layout.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+
+<body role="document">
+
+<!-- Fixed navbar -->
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">[Toolname]</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="#introduction">Introduction</a></li>
+                <li><a href="#installation">Installation</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Usage<span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#usage-options">Options</a></li>
+                        <li><a href="#usage-format">Input format</a></li>
+                    </ul>
+                </li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </div><!--/.nav-collapse -->
+    </div>
+</nav>
+
+<div class="container theme-showcase" role="main">
+
+    <!-- Main jumbotron for a primary marketing message or call to action -->
+    <div class="jumbotron">
+        <h1>Toolname</h1>
+        <p>[Insert brief description of tool here]</p>
+    </div>
+
+
+    <a class="anchor" name="introduction"></a>
+    <div class="page-header">
+        <h1>Introduction</h1>
+    </div>
+    <p>
+        Toolname is a tool for verifying... It's written in <a href="http://scala-lang.org/">Scala</a> which builds
+        on Java. This means that Toolname runs in any environment that supports Java. The code is available on GitHub
+        for free under [Figure out good license].
+
+    <a class="anchor" name="installation"></a>
+    <div class="page-header">
+        <h1>Installation</h1>
+    </div>
+    <p>Installing [Toolname] is easy. Toolname requires Scala and the build tool sbt.
+        To install Toolname, follow these steps:
+
+    <ol>
+        <li>
+            <a href="http://www.scala-lang.org/download/install.html">Install Scala</a>
+        </li>
+        <li>
+            <a href="http://www.scala-sbt.org/0.13/docs/Setup.html">Install Scala sbt</a>
+        </li>
+        <li>
+            Checkout source from github:<br>
+            <p class="code">$ git clone https://github.com/USERNAME/REPOSITORY.git</p>
+        </li>
+        <li>
+            Build project using sbt:<br>
+            <div class="code">
+                $ cd dirname <br>
+                $ sbt build
+            </div>
+        </li>
+    </ol>
+
+    </p>
+
+
+    <a class="anchor" name="usage-options"></a>
+    <div class="page-header">
+        <h1>Options</h1>
+    </div>
+
+    <p>
+        Toolname accepts paramters in two formats: through the command line or through a file <b>config.txt</b>
+        (a sample file is included in the source from GitHub) located in the
+        same directory as the executable. Parameters supplied through the command line take precedence over parameters
+        from config.txt. Commands are always specified as a key-value-pair. Some commands are mandatory, while other
+        have default values.
+    </p>
+    <p>
+        Parameters in config.txt are specified like this:
+    <div class="code">
+        % Any line starting with '%' is a comment <br>
+        % The following lines will assign 'value1' and 'value2' to the parameters 'key1' and 'key2'<br>
+        key1=value1<br>
+        key2=value2
+    </div>
+        A sample config.txt is supplied with the project.
+    </p>
+    <p>
+        The command line accepts the same parameters as config.txt. To achieve the same result as above, the following
+        is used:
+    <div class="code">
+        $ toolname -key1 value1 -key2 value2
+    </div>
+    </p>
+
+    <p>Following is a list of available commands:</p>
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Effect</th>
+            <th>Key</th>
+            <th>Value</th>
+            <th>Required</th>
+            <th>Default</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Specify protocol file</td>
+            <td>p</td>
+            <td>Search path to valid protocol file.</td>
+            <td>Yes</td>
+            <td>-</td>
+        </tr>
+        <tr>
+            <td>Set maximum k</td>
+            <td>max_k</td>
+            <td>Specifies the maximum k value, after which the execution will end and the result will be
+                inconclusive.</td>
+            <td>No</td>
+            <td>5</td>
+        </tr>
+        <tr>
+            <td>Generate .dot-file for the protocol. If this parameters is set to true, a file named [protocol].dot
+                is generated in the result directory, where [protocol] is the name specified by the protocol
+                file.</td>
+            <td>output_protocol</td>
+            <td>true/false</td>
+            <td>No</td>
+            <td>false</td>
+        </tr>
+        <tr>
+            <td>Generate .dot-file for counter example. If a bad state is reachable this means that there is a
+                series of posts leading to it. If this parameter is set to true, a file named
+                counter_example.dot is created in the result directory.</td>
+            <td>output_counter</td>
+            <td>true/false</td>
+            <td>No</td>
+            <td>false</td>
+        </tr>
+        <tr>
+            <td>Generate log file. If this parameter is set to true, a file called [protocol].log containing
+                various information about the execution is is created in the result directory, where [protocol]
+                is the name specified by the protocol file. If this parameter is set to false, sat/unsat will be
+                the only output from the program.</td>
+            <td>output_counter</td>
+            <td>true/false</td>
+            <td>No</td>
+            <td>true</td>
+        </tr>
+        </tbody>
+    </table>
+
+
+
+    <a class="anchor" name="usage-format"></a>
+    <div class="page-header">
+        <h1>Protocol format</h1>
+    </div>
+
+    <p>
+        The protocol file consists of three parts: a declaration of available states, an initial configuration and a
+        set of rules, in that order. Any line starting with a '%' or any empty line is ignored.
+    </p>
+
+    <h2>States</h2>
+    <p>
+        The state declaration begins with a line with the text "States:". Each following line declares the name of a
+        state, until the starting line of the initial configuration. A valid state name is a string consisting of
+        (A-Z, a-z, 0-9, _).
+    </p>
+    <p>
+        As a convenience, some reserved state names can be used to generate dot-files with coloured states instead of
+        named ones. A configuration with states 
+    </p>
+
+    <h1>
+        <span class="label label-default">Default</span>
+        <span class="label label-primary">Primary</span>
+        <span class="label label-success">Success</span>
+        <span class="label label-info">Info</span>
+        <span class="label label-warning">Warning</span>
+        <span class="label label-danger">Danger</span>
+    </h1>
+    <h2>
+        <span class="label label-default">Default</span>
+        <span class="label label-primary">Primary</span>
+        <span class="label label-success">Success</span>
+        <span class="label label-info">Info</span>
+        <span class="label label-warning">Warning</span>
+        <span class="label label-danger">Danger</span>
+    </h2>
+    <h3>
+        <span class="label label-default">Default</span>
+        <span class="label label-primary">Primary</span>
+        <span class="label label-success">Success</span>
+        <span class="label label-info">Info</span>
+        <span class="label label-warning">Warning</span>
+        <span class="label label-danger">Danger</span>
+    </h3>
+    <h4>
+        <span class="label label-default">Default</span>
+        <span class="label label-primary">Primary</span>
+        <span class="label label-success">Success</span>
+        <span class="label label-info">Info</span>
+        <span class="label label-warning">Warning</span>
+        <span class="label label-danger">Danger</span>
+    </h4>
+    <h5>
+        <span class="label label-default">Default</span>
+        <span class="label label-primary">Primary</span>
+        <span class="label label-success">Success</span>
+        <span class="label label-info">Info</span>
+        <span class="label label-warning">Warning</span>
+        <span class="label label-danger">Danger</span>
+    </h5>
+    <h6>
+        <span class="label label-default">Default</span>
+        <span class="label label-primary">Primary</span>
+        <span class="label label-success">Success</span>
+        <span class="label label-info">Info</span>
+        <span class="label label-warning">Warning</span>
+        <span class="label label-danger">Danger</span>
+    </h6>
+    <p>
+        <span class="label label-default">Default</span>
+        <span class="label label-primary">Primary</span>
+        <span class="label label-success">Success</span>
+        <span class="label label-info">Info</span>
+        <span class="label label-warning">Warning</span>
+        <span class="label label-danger">Danger</span>
+    </p>
+
+
+    <div class="page-header">
+        <h1>Badges</h1>
+    </div>
+    <p>
+        <a href="#">Inbox <span class="badge">42</span></a>
+    </p>
+    <ul class="nav nav-pills" role="tablist">
+        <li role="presentation" class="active"><a href="#">Home <span class="badge">42</span></a></li>
+        <li role="presentation"><a href="#">Profile</a></li>
+        <li role="presentation"><a href="#">Messages <span class="badge">3</span></a></li>
+    </ul>
+
+
+    <div class="page-header">
+        <h1>Dropdown menus</h1>
+    </div>
+    <div class="dropdown theme-dropdown clearfix">
+        <a id="dropdownMenu1" href="#" class="sr-only dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
+        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+            <li class="active"><a href="#">Action</a></li>
+            <li><a href="#">Another action</a></li>
+            <li><a href="#">Something else here</a></li>
+            <li role="separator" class="divider"></li>
+            <li><a href="#">Separated link</a></li>
+        </ul>
+    </div>
+
+
+    <div class="page-header">
+        <h1>Navs</h1>
+    </div>
+    <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="active"><a href="#">Home</a></li>
+        <li role="presentation"><a href="#">Profile</a></li>
+        <li role="presentation"><a href="#">Messages</a></li>
+    </ul>
+    <ul class="nav nav-pills" role="tablist">
+        <li role="presentation" class="active"><a href="#">Home</a></li>
+        <li role="presentation"><a href="#">Profile</a></li>
+        <li role="presentation"><a href="#">Messages</a></li>
+    </ul>
+
+
+    <div class="page-header">
+        <h1>Navbars</h1>
+    </div>
+
+    <nav class="navbar navbar-default">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">Project name</a>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li class="active"><a href="#">Home</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">Action</a></li>
+                            <li><a href="#">Another action</a></li>
+                            <li><a href="#">Something else here</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li class="dropdown-header">Nav header</li>
+                            <li><a href="#">Separated link</a></li>
+                            <li><a href="#">One more separated link</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </nav>
+
+    <nav class="navbar navbar-inverse">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">Project name</a>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li class="active"><a href="#">Home</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">Action</a></li>
+                            <li><a href="#">Another action</a></li>
+                            <li><a href="#">Something else here</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li class="dropdown-header">Nav header</li>
+                            <li><a href="#">Separated link</a></li>
+                            <li><a href="#">One more separated link</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </nav>
+
+
+</div> <!-- /container -->
+
+
+
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="js/bootstrap.min.js"></script>
+</body>
+</html>

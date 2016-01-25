@@ -4,35 +4,49 @@ import java.nio.file.{Files, Paths}
 object main {
   def main(args:Array[String]): Unit = {
     val p = new Protocol("test_data/burns.pc")
-    //val rulesGraph = Dot.makeRulesGraph(p.rules, p.internalToName)
-    //Files.write(Paths.get("output/rules.dot"), rulesGraph.getBytes(StandardCharsets.UTF_8))
-
-    //val c = Reachability.simple(Set(p.initialConfiguration.make(3)), p.rules)
-    //val cDraw = Reachability.simpleWithTransitions(Set(p.initialConfiguration.make(3)), p.rules)
-    //val graphData = Dot.makeConfigurationsWithTransitions(cDraw, p.internalToName, false)
-    //val rulesData = Dot.makeRulesGraph(p.rules, p.internalToName)
 
 
-    //val st2 = Reachability.simple(Set(p.initialConfiguration.make(3)), p.rules)
-    //val configs = ViewsFromConfiguration.makeMultiple(st2, 2)
-    //val viewsData = Dot.makeViews(configs, p.internalToName, 8)
+    timeFunction(() => testBurnsNaive(p))
+    timeFunction(() => testBurns(p))
 
-    //Files.write(Paths.get("output/graph.dot"), graphData.getBytes(StandardCharsets.UTF_8))
-    //Files.write(Paths.get("output/rules.dot"), rulesData.getBytes(StandardCharsets.UTF_8))
-    //Files.write(Paths.get("output/views.dot"), viewsData.getBytes(StandardCharsets.UTF_8))
+    val m = Map(0 -> "Red", 1 -> "s1")
 
-    val st2 = Set(
-      Vector(1, 1),
-      Vector(1, 2),
-      Vector(2, 1)
-    )
+    Files.write(Paths.get("output/example.dot"), Dot.makeConfigurations(Set(Vector(0, 1)), m).getBytes(StandardCharsets.UTF_8))
+  }
 
-    val map = Concretisation.makeMap(st2)
+  def timeFunction(f: () => Unit): Unit = {
+    val t0 = System.nanoTime()
+    f()
+    val t1 = System.nanoTime()
+    println("Elapsed time: " + (t1 - t0) / 1000000000.0 + "ns")
+  }
 
-    //val c3 = Concretisation.g(st2, map)
-    //Files.write(Paths.get("output/v1.dot"), Dot.makeViews(c3, p.internalToName, 8).getBytes(StandardCharsets.UTF_8))
-    //Files.write(Paths.get("output/v3.dot"), Dot.makeViews(st2, p.internalToName, 8).getBytes(StandardCharsets.UTF_8))
+  def testBurnsNaive(p: Protocol) = {
+    var s = Set(Vector(1, 1, 1))
+    var newFound = true
+    while (newFound) {
+      val newConfigs = AbstractPost.singleNaive(s, p.rules, 3)
+      if (newConfigs.subsetOf(s)) {
+        newFound = false
+      }
+      s = s ++ newConfigs
+    }
+    println(s.size)
+  }
 
+  def testBurns(p: Protocol) = {
+    var s = Set(Vector(1, 1, 1))
+    val map = Concretisation.makeRoMap(s)
+    var newFound = true
+    while (newFound) {
+      val newConfigs = AbstractPost.single(s, p.rules, map, 3)
+      Concretisation.addToRoMap(newConfigs, map)
+      if (newConfigs.subsetOf(s)) {
+        newFound = false
+      }
+      s = s ++ newConfigs
+    }
+    println(s.size)
   }
 }
 
