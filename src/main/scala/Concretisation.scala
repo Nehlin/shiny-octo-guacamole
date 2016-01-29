@@ -48,11 +48,11 @@ object Concretisation {
     mSet.toSet
   }
 
-  def f(views: Set[Vector[Int]], length: Int, roMap: RoMap): Set[Vector[Int]] = {
+  def generate(views: Set[Vector[Int]],
+               roMap: RoMap,
+               aLen: Int,
+               existing: MSet[Configuration.Identifier]): Set[Vector[Int]] = {
 
-    val aLen = 10
-
-    // TODO: get real alphabet length
     val viewIdentifiers = views.map(v => Configuration.makeIdentifier(v, aLen))
 
     def generateCandidates(view: Vector[Int]): Option[MSet[Vector[Int]]] = {
@@ -61,7 +61,16 @@ object Concretisation {
 
       if (roMap.isDefinedAt(secondState)) {
         val endings = roMap(secondState)
-        Some(endings.map(ending => view.head +: secondState +: ending))
+        val candidates = for (ending <- endings
+          if existing.contains(Configuration.makeIdentifierFixedStart(view.head, secondState, ending, aLen))
+        ) yield {
+          view.head +: secondState +: ending
+        }
+        if (candidates.nonEmpty) {
+          Some(candidates)
+        } else {
+          None
+        }
       } else {
         None
       }
@@ -93,9 +102,6 @@ object Concretisation {
     }
 
     val candidates = views.map(generateCandidates).flatten.flatten
-    val existing = MSet[Configuration.Identifier]()
     candidates.filter(candidate => testCandidate(candidate, existing))
   }
-
-  def generate(views: Set[Vector[Int]], length: Int, roMap: RoMap): Set[Vector[Int]] = f(views, length, roMap)
 }

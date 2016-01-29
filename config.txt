@@ -1,0 +1,3 @@
+p=test_data/burns.txt
+log_file=true
+protocol_dot=true

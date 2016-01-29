@@ -3,6 +3,7 @@ import scala.collection.SeqView
 abstract class Side
 case object Left extends Side
 case object Right extends Side
+case object Both extends Side
 
 abstract class Rule(f: Int, t: Int) extends Ordered[Rule] {
   val from = f
@@ -72,9 +73,9 @@ abstract class QuantifierRule(f: Int, t: Int, st: Set[Int], si: Side, qs: String
   val side = si
 
   def statesString(stateStrings: Set[String]): String = {
-    val sideString = if (side == Left) "L" else "R"
+    val sideString = if (side == Left) ".L" else if (side == Right) ".R" else ""
 
-    quantifierString + "." + sideString + "(" + stateStrings.toList.sorted.mkString(",") + ")"
+    quantifierString + sideString + "(" + stateStrings.toList.sorted.mkString(",") + ")"
   }
 
   def statesString(internalToName: Map[Int, String]): String = {
@@ -88,15 +89,6 @@ abstract class QuantifierRule(f: Int, t: Int, st: Set[Int], si: Side, qs: String
   def toString(internalToName: Map[Int, String]): String =
     stringFun(internalToName, from, to, Some(statesString(internalToName)))
 
-
-
-  def statesForSide(configuration: Vector[Int], index: Int): SeqView[Int, Vector[Int]] = {
-    side match {
-      case Left => Configuration.leftOf(configuration, index)
-      case Right => Configuration.rightOf(configuration, index)
-    }
-  }
-
   def testQuantifier(configuration: Vector[Int], index: Int): Boolean
 
   def test(configuration: Vector[Int], index: Int): Boolean = {
@@ -105,14 +97,33 @@ abstract class QuantifierRule(f: Int, t: Int, st: Set[Int], si: Side, qs: String
 }
 
 case class Existential(f: Int, t: Int, st: Set[Int], si: Side) extends QuantifierRule(f, t, st, si, "\u2203") {
-  def   testQuantifier(configuration: Vector[Int], index: Int): Boolean = {
-    val candidateStates = statesForSide(configuration, index)
-    candidateStates.exists(st => conditionStates.contains(st))
+  def testQuantifier(configuration: Vector[Int], index: Int): Boolean = {
+    if (side == Both) {
+      val leftSide = Configuration.leftOf(configuration, index)
+      val rightSide = Configuration.rightOf(configuration, index)
+      leftSide.exists(st => conditionStates.contains(st)) ||
+        rightSide.exists(st => conditionStates.contains(st))
+    } else {
+      val candidateStates = if (side == Left)
+        Configuration.leftOf(configuration, index)
+      else
+        Configuration.rightOf(configuration, index)
+      candidateStates.exists(st => conditionStates.contains(st))
+    }
   }
 }
 case class Universal(f: Int, t: Int, st: Set[Int], si: Side) extends QuantifierRule(f, t, st, si, "\u2200") {
   def testQuantifier(configuration: Vector[Int], index: Int): Boolean = {
-    val candidateStates = statesForSide(configuration, index)
-    candidateStates.forall(st => conditionStates.contains(st))
+    if (side == Both) {val leftSide = Configuration.leftOf(configuration, index)
+      val rightSide = Configuration.rightOf(configuration, index)
+      leftSide.forall(st => conditionStates.contains(st)) &&
+        rightSide.forall(st => conditionStates.contains(st))
+    } else {
+      val candidateStates = if (side == Left)
+        Configuration.leftOf(configuration, index)
+      else
+        Configuration.rightOf(configuration, index)
+      candidateStates.forall(st => conditionStates.contains(st))
+    }
   }
 }

@@ -37,7 +37,7 @@
         </div>
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
-                <li class="active"><a href="#introduction">Introduction</a></li>
+                <li><a href="#introduction">Introduction</a></li>
                 <li><a href="#installation">Installation</a></li>
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Usage<span class="caret"></span></a>
@@ -159,10 +159,9 @@
             <td>5</td>
         </tr>
         <tr>
-            <td>Generate .dot-file for the protocol. If this parameters is set to true, a file named [protocol].dot
-                is generated in the result directory, where [protocol] is the name specified by the protocol
-                file.</td>
-            <td>output_protocol</td>
+            <td>Generate .dot-file for the protocol. If this parameters is set to true, a file named <b>protocol.dot</b>
+                is generated in the result directory.</td>
+            <td>protocol_dot</td>
             <td>true/false</td>
             <td>No</td>
             <td>false</td>
@@ -170,18 +169,19 @@
         <tr>
             <td>Generate .dot-file for counter example. If a bad state is reachable this means that there is a
                 series of posts leading to it. If this parameter is set to true, a file named
-                counter_example.dot is created in the result directory.</td>
-            <td>output_counter</td>
+                <b>counter_example.dot</b> is created in the result directory.</td>
+            <td>counter_dot</td>
             <td>true/false</td>
             <td>No</td>
             <td>false</td>
         </tr>
         <tr>
-            <td>Generate log file. If this parameter is set to true, a file called [protocol].log containing
-                various information about the execution is is created in the result directory, where [protocol]
-                is the name specified by the protocol file. If this parameter is set to false, sat/unsat will be
-                the only output from the program.</td>
-            <td>output_counter</td>
+            <td>
+                Generate log file. If this parameter is set to true, a file called <b>log.txt</b> containing
+                various information about the execution is is created in the result directory. If this parameter is set
+                to false, sat/unsat will be the only output from the program.
+            </td>
+            <td>log_file</td>
             <td>true/false</td>
             <td>No</td>
             <td>true</td>

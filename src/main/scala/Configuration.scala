@@ -1,7 +1,17 @@
 import scala.collection.SeqView
 
+/**
+ * A configuration is simply a Vector of Ints, where each Int represents a
+ * state.
+ */
 object Configuration {
 
+  /*
+   * The purpose of the Identifier is to be able to do fast lookup and
+   * comparison between configurations without the need to create new Vectors
+   *
+   * Generating Identifiers has to be reasonably quick or they lose their point
+   */
   type Identifier = BigInt
 
   /**
@@ -65,7 +75,7 @@ object Configuration {
   }
 
   // Offset is needed to ensure that (0) != (0, 0)
-  def makeOffset(len: Int, aLen: Int): BigInt = {
+  private def makeOffset(len: Int, aLen: Int): BigInt = {
     val bigALen:BigInt = aLen
     (bigALen * (bigALen.pow(len - 1) - 1)) / (bigALen - 1)
   }
@@ -118,7 +128,8 @@ object Configuration {
    * @param conf original configuration
    * @param aLen length of alphabet
    * @param skipPos position to drop state
-   * @return the identifier that would be created by calling makeIdentifier on conf after dropping the state at skipPos
+   * @return the identifier that would be created by calling makeIdentifier on
+   *         conf after dropping the state at skipPos
    */
   def makeIdentifierSkip(conf: Vector[Int], aLen: Int, skipPos: Int): Identifier = {
     def makeIdentifierSkip_(pos: Int, exp: BigInt, res: BigInt): Identifier = {

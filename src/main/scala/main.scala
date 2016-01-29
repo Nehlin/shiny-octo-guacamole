@@ -2,16 +2,31 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Paths}
 
 object main {
+  val OutputDir = "result/"
+
   def main(args:Array[String]): Unit = {
-    val p = new Protocol("test_data/burns.txt")
+    val params = new Parameters(args)
 
+    val protocolFile = params.get("ProtocolFile").asInstanceOf[String]
+    val maxK = params.get("MaxK").asInstanceOf[Int]
+    val makeProtocolDot = params.get("ProtocolDot").asInstanceOf[Boolean]
+    val makeCounterDot = params.get("CounterDot").asInstanceOf[Boolean]
+    val makeLogFile = params.get("LogFile").asInstanceOf[Boolean]
 
-    timeFunction(() => testBurnsNaive(p))
-    timeFunction(() => testBurns(p))
+    val p = new Protocol(protocolFile)
 
-    val m = Map(0 -> "Green", 1 -> "s1", 2 -> "YeLLoW", 3 -> "Panda")
+    val existing = Set(Configuration.makeIdentifier(Vector(1, 3), p.alphabetLength))
+    val x = Views.newViewsFromConfiguration(Vector(1, 2, 3), existing, p.alphabetLength)
 
-    Files.write(Paths.get("output/example.dot"), Dot.makeConfigurations(Set(Vector(0, 1, 2, 3)), m).getBytes(StandardCharsets.UTF_8))
+    if (makeProtocolDot) {
+      val protocolDotString = Dot.makeRulesGraph(p.rules, p.internalToName)
+      writeToFile("protocol.dot", protocolDotString)
+    }
+  }
+
+  def writeToFile(fileName: String, data: String): Unit = {
+    val filePath = OutputDir + fileName
+    Files.write(Paths.get(filePath), data.getBytes(StandardCharsets.UTF_8))
   }
 
   def timeFunction(f: () => Unit): Unit = {
@@ -39,12 +54,12 @@ object main {
     val map = Concretisation.makeRoMap(s)
     var newFound = true
     while (newFound) {
-      val newConfigs = AbstractPost.single(s, p.rules, map, 3)
-      Concretisation.addToRoMap(newConfigs, map)
-      if (newConfigs.subsetOf(s)) {
-        newFound = false
-      }
-      s = s ++ newConfigs
+      //val newConfigs = AbstractPost.single(s, p.rules, map, 3)
+      //Concretisation.addToRoMap(newConfigs, map)
+      //if (newConfigs.subsetOf(s)) {
+      //newFound = false
+      //}
+      //s = s ++ newConfigs
     }
     println(s.size)
   }

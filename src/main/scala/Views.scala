@@ -60,4 +60,27 @@ object Views {
   def fromConfigurations[A](configurations: Set[Vector[A]], size: Int): Set[Vector[A]] = {
     configurations.foldLeft(Set[Vector[A]]())((acc, config) => acc ++ fromConfiguration(config, size))
   }
+
+  def newViewsFromConfiguration(configuration: Vector[Int],
+                                existing: Set[Configuration.Identifier],
+                                aLen: Int): Set[Vector[Int]] = {
+
+    def dropState(configuration: Vector[Int], dropPos: Int): Vector[Int] = {
+      configuration.take(dropPos) ++ configuration.drop(dropPos + 1)
+    }
+
+    (for (
+      i <- 0 until configuration.length
+      if !existing.contains(Configuration.makeIdentifierSkip(configuration, aLen, i))
+    ) yield {
+      dropState(configuration, i)
+    }).toSet
+  }
+
+  def newViewsFromConfigurations(configurations: Set[Vector[Int]],
+                                 existing: Set[Configuration.Identifier],
+                                 aLen: Int): Set[Vector[Int]] = {
+
+    configurations.map(configuration => newViewsFromConfiguration(configuration, existing, aLen)).flatten
+  }
 }

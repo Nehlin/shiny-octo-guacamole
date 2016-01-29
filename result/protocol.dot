@@ -1,0 +1,16 @@
+digraph Configurations {
+  s_0_0 [shape=circle,style=filled,fixedsize=true,width=0.5,label="",fillcolor=yellowgreen]
+  s_0_1 [shape=circle,style=filled,fixedsize=true,width=0.5,label="",fillcolor=white]
+  s_0_2 [shape=circle,style=filled,fixedsize=true,width=0.5,label="",fillcolor=black]
+  s_0_3 [shape=circle,style=filled,fixedsize=true,width=0.5,label="",fillcolor=yellow]
+  s_0_4 [shape=circle,style=filled,fixedsize=true,width=0.5,label="",fillcolor=blue]
+  s_0_5 [shape=circle,style=filled,fixedsize=true,width=0.5,label="",fillcolor=red]
+  s_0_0 -> s_0_1
+  s_0_1 -> s_0_0 [label=<∃<sub>L</sub>(<font color="yellow">●</font>,<font color="red">●</font>,<font color="blue">●</font>)>]
+  s_0_1 -> s_0_2 [label=<∀<sub>L</sub>(<font color="yellowgreen">●</font>,<font color="white">●</font>,<font color="black">●</font>)>]
+  s_0_2 -> s_0_3
+  s_0_3 -> s_0_0 [label=<∃<sub>L</sub>(<font color="yellow">●</font>,<font color="red">●</font>,<font color="blue">●</font>)>]
+  s_0_3 -> s_0_4 [label=<∀<sub>L</sub>(<font color="yellowgreen">●</font>,<font color="white">●</font>,<font color="black">●</font>)>]
+  s_0_4 -> s_0_5 [label=<∀<sub>R</sub>(<font color="yellowgreen">●</font>,<font color="white">●</font>,<font color="black">●</font>)>]
+  s_0_5 -> s_0_0
+}
