@@ -1,26 +1,62 @@
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Paths}
+import scala.collection.mutable.ArrayBuffer
 
 object main {
   val OutputDir = "result/"
 
   def main(args:Array[String]): Unit = {
-    val params = new Parameters(args)
+    val parameters = new Parameters(args)
 
-    val protocolFile = params.get("ProtocolFile").asInstanceOf[String]
-    val maxK = params.get("MaxK").asInstanceOf[Int]
-    val makeProtocolDot = params.get("ProtocolDot").asInstanceOf[Boolean]
-    val makeCounterDot = params.get("CounterDot").asInstanceOf[Boolean]
-    val makeLogFile = params.get("LogFile").asInstanceOf[Boolean]
+    val protocolFile = parameters.getProtocolFile
+    val makeProtocolDot = parameters.getMakeProtocolDot
+    val makeCounterDot = parameters.getMakeCounterDot
+    val makeLogFile = parameters.getMakeLogFile
+    val maxK = parameters.getMaxK
 
-    val p = new Protocol(protocolFile)
+    println("Parsing protocol file")
+    val protocol = new Protocol(protocolFile)
 
-    val existing = Set(Configuration.makeIdentifier(Vector(1, 3), p.alphabetLength))
-    val x = Views.newViewsFromConfiguration(Vector(1, 2, 3), existing, p.alphabetLength)
+    if (makeProtocolDot == Only || makeProtocolDot == Yes) {
+      println("Generating protocol file in: " + FileWriter.ProtocolDotFile)
+      val protocolDotString = Dot.makeRulesGraph(protocol.rules, protocol.internalToName)
+      FileWriter.write(protocolDotString, FileWriter.ProtocolDotFile)
+      if (makeProtocolDot == Only) {
+        println("ProtocolDot was set to \"only\", exiting")
+        return
+      }
+    }
 
-    if (makeProtocolDot) {
-      val protocolDotString = Dot.makeRulesGraph(p.rules, p.internalToName)
-      writeToFile("protocol.dot", protocolDotString)
+    println("Verifying protocol up to maximum size of " + maxK)
+    val (result, endK) = Verify.run(protocol, maxK)
+    println("Result: " + Verify.resultToString(result))
+
+    // If the protocol is unsafe and the user requested a counter example,
+    // generate one.
+    if (result == Unsafe && makeCounterDot) {
+      println("Generating counter example file: " + FileWriter.CounterDotFile)
+      val initialConfiguration = Set(protocol.initialConfiguration(endK))
+      val postConfigs = Post.fixPointWithTransitions(initialConfiguration, protocol.rules)
+      val dotString = Dot.makeConfigurationsWithTransitions(postConfigs, protocol.internalToName)
+      FileWriter.write(dotString, FileWriter.CounterDotFile)
+    }
+
+    if (makeLogFile) {
+      // TODO: update this to contain more useful information
+      // Information should be gathered from Verify.run and could contain information such as
+      // number of created configurations and execution time.
+
+      println("Writing log to file: " + FileWriter.LogFile)
+      val logString =
+        "Result:\n" +
+        Verify.resultToString(result) + "\n" +
+        (if (result == Unclear) {
+          "Unable to reach a result for configurations of size up to: " + endK + "\n"
+        } else {
+          "Result found at k = " + endK + "\n"
+        })
+
+      FileWriter.write(logString, FileWriter.LogFile)
     }
   }
 
@@ -36,32 +72,5 @@ object main {
     println("Elapsed time: " + (t1 - t0) / 1000000000.0 + "ns")
   }
 
-  def testBurnsNaive(p: Protocol) = {
-    var s = Set(Vector(1, 1, 1))
-    var newFound = true
-    while (newFound) {
-      val newConfigs = AbstractPost.singleNaive(s, p.rules, 3)
-      if (newConfigs.subsetOf(s)) {
-        newFound = false
-      }
-      s = s ++ newConfigs
-    }
-    println(s.size)
-  }
-
-  def testBurns(p: Protocol) = {
-    var s = Set(Vector(1, 1, 1))
-    val map = Concretisation.makeRoMap(s)
-    var newFound = true
-    while (newFound) {
-      //val newConfigs = AbstractPost.single(s, p.rules, map, 3)
-      //Concretisation.addToRoMap(newConfigs, map)
-      //if (newConfigs.subsetOf(s)) {
-      //newFound = false
-      //}
-      //s = s ++ newConfigs
-    }
-    println(s.size)
-  }
 }
 

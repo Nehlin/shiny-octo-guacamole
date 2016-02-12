@@ -1,3 +1,12 @@
+import scala.collection.mutable.ArrayBuffer
+
+/**
+ * Dot is a format for displaying graphs. It is a human readable format.
+ * More information about the format can be found here:
+ * http://www.graphviz.org/content/dot-language
+ * NOTE: This code is not covered by any test-cases as it is both non-
+ * essential and hard to test.
+ */
 object Dot {
   /**
    * Some state names will create coloured states instead of named states. To
@@ -105,7 +114,7 @@ object Dot {
    * @param internalToName conversion from internal state representation to original name
    * @return the .dot-string that represents configuration
    */
-  private def makeConfiguration(configuration: Vector[Int],
+  private def makeConfiguration(configuration: ArrayBuffer[Int],
                                 configIndex: Int,
                                 internalToName: Map[Int, String]): String = {
 
@@ -154,7 +163,7 @@ object Dot {
    * @param internalToName conversion from internal state representation to original name
    * @return .dot string with the graph-data of indexedConfigurations
    */
-  private def makeIndexedConfigurations(indexedConfigurations: List[(Vector[Int], Int)],
+  private def makeIndexedConfigurations(indexedConfigurations: List[(ArrayBuffer[Int], Int)],
                                     internalToName: Map[Int, String]): String = {
 
     indexedConfigurations.map{case(config, index) => makeConfiguration(config, index, internalToName)}.mkString
@@ -167,7 +176,7 @@ object Dot {
    * @param internalToName conversion from internal state representation to original name
    * @return .dot string with the graph-data of configurations
    */
-  def makeConfigurations(configurations: Set[Vector[Int]], internalToName: Map[Int, String]): String = {
+  def makeConfigurations(configurations: Set[ArrayBuffer[Int]], internalToName: Map[Int, String]): String = {
     val sortedAndIndexed = configurations.toList.sortWith(Configuration.compareBool).zipWithIndex
     makeGraphStructure(makeIndexedConfigurations(sortedAndIndexed, internalToName))
   }
@@ -210,8 +219,8 @@ object Dot {
       case Unrestricted(_, _) => ""
       case qr:QuantifierRule =>
         val stateString = makeTransitionStates(qr.conditionStates, internalToName)
-        val sideString = if (qr.side == Left) "L" else if (qr.side == Right) "R" else ""
-        " [label=<" + qr.quantifierString + "<sub>" + sideString + "</sub>(" + stateString + ")>]"
+        val sideString = if (qr.side == Left) "<sub>L</sub>" else if (qr.side == Right) "<sub>R</sub>" else ""
+        " [label=<" + qr.quantifierString + sideString + "(" + stateString + ")>]"
     }
 
     val iString = indentationString(indentation)
@@ -251,7 +260,7 @@ object Dot {
    * @return .dot-graph representing the series of posts represented by
    *         configsAndTransitions
    */
-  def makeConfigurationsWithTransitions(configsAndTransitions: Set[(Vector[Int], Int, Rule, Vector[Int])],
+  def makeConfigurationsWithTransitions(configsAndTransitions: Set[(ArrayBuffer[Int], Int, Rule, ArrayBuffer[Int])],
                                         internalToName: Map[Int, String]): String = {
 
     val lhs = configsAndTransitions.map{case(c, _, _, _) => c}
@@ -279,7 +288,7 @@ object Dot {
    * @param viewsPerRow number of views per row
    * @return a .dot-graph containing views positioned in a grid.
    */
-  def makeViews(views: Set[Vector[Int]], internalToName: Map[Int, String], viewsPerRow: Int): String = {
+  def makeViews(views: Set[ArrayBuffer[Int]], internalToName: Map[Int, String], viewsPerRow: Int): String = {
     val sortedViews = views.toList.sortWith(Configuration.compareBool)
 
     val configs = makeIndexedConfigurations(sortedViews.zipWithIndex, internalToName)

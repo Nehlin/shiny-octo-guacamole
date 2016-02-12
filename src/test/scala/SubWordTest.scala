@@ -1,13 +1,15 @@
 import org.scalatest._
 
+import scala.collection.mutable.ArrayBuffer
+
 class SubWordTest extends FlatSpec with Matchers {
-  val l1 = List(1, 2, 3, 4, 5)
-  val l2 = List(2, 4)
-  val l3 = List(1)
-  val l4 = List(1, 5)
-  val l5 = List(6)
-  val l6 = List(2, 1)
-  val l7 = List()
+  val l1 = ArrayBuffer(1, 2, 3, 4, 5)
+  val l2 = ArrayBuffer(2, 4)
+  val l3 = ArrayBuffer(1)
+  val l4 = ArrayBuffer(1, 5)
+  val l5 = ArrayBuffer(6)
+  val l6 = ArrayBuffer(2, 1)
+  val l7 = ArrayBuffer[Int]()
 
   "Subwords" should "be testable" in {
     SubWord.test(l1, l1) should be (true)

@@ -1,70 +1,82 @@
-import collection.mutable.{ HashMap => MHashMap, MultiMap => MMultiMap, Set => MSet }
+import scala.collection.mutable.{HashMap => MHashMap, MultiMap => MMultiMap, Set => MSet, ArrayBuffer}
 import scala.collection.SeqView
 
 object Concretisation {
 
-  type SubView = SeqView[Int, Vector[Int]]
-  type RoMap = MHashMap[Int, MSet[Vector[Int]]] with MMultiMap[Int, Vector[Int]]
-
-
-  // TODO: use vector views instead of .tail
-  def addToRoMap(views: Set[Vector[Int]], roMap: RoMap): Unit = {
-    views.map(view => {
-      val key = view.head
-      roMap.addBinding(key, view.drop(1))
-    })
-  }
-
-  def makeRoMap(views: Set[Vector[Int]]): RoMap = {
-    val roMap = new MHashMap[Int, MSet[Vector[Int]]] with MMultiMap[Int, Vector[Int]]
-
-    addToRoMap(views, roMap)
-
-    roMap
-  }
-
-  // Naive concretisation function. For testing purposes only!
-  def naive(views: Set[Vector[Int]], length: Int): Set[Vector[Int]] = {
-    val alphabet = views.foldLeft(Set[Int]())((acc, curr) => acc ++ curr.toSet).toVector
+  /* Naive concretisation function. Note that this code needs to be replaced
+   * for the final version. This is extremely slow and can be rewritten with
+   * far better performance. See this as placeholder code so that work can
+   * continue until the real concretisation is implemented.
+   */
+  def naive(views: Set[ArrayBuffer[Int]], length: Int): Set[ArrayBuffer[Int]] = {
+    val alphabet = views.foldLeft(Set[Int]())((acc, curr) => acc ++ curr.toSet).toArray
     val aLen = alphabet.length
 
-    val mSet = MSet[Vector[Int]]()
+    val mSet = MSet[ArrayBuffer[Int]]()
 
-    def configForNum(num: Int, pos: Int): Vector[Int] = {
-       if (pos == 0) {
-         Vector(alphabet(num))
-       } else {
-         configForNum(num / aLen, pos - 1) ++ Vector(alphabet((num % aLen).toInt))
-       }
+    def configForNum(num: Int, pos: Int): ArrayBuffer[Int] = {
+      if (pos == 0) {
+        ArrayBuffer(alphabet(num))
+      } else {
+        configForNum(num / aLen, pos - 1) ++ ArrayBuffer(alphabet(num % aLen))
+      }
     }
 
     (0 until math.pow(aLen.toDouble, (length + 1).toDouble).toInt).foreach(num => {
       val candidate = configForNum(num, length)
-      val cViews = Views.fromConfiguration(candidate, length)
+      val cViews = Views.fromConfigurationFixed(candidate, None)
       if (cViews.subsetOf(views)) {
         mSet += candidate
       }
     })
     mSet.toSet
   }
+/*
+  type RoMap = MHashMap[Int, MSet[ArrayBuffer[Int]]] with MMultiMap[Int, ArrayBuffer[Int]]
 
-  def generate(views: Set[Vector[Int]],
+  def addToRoMap(views: Set[ArrayBuffer[Int]], roMap: RoMap): Unit = {
+    views.map(view => {
+      val key = view.head
+      roMap.addBinding(key, view.drop(1))
+    })
+  }
+
+  def makeRoMap(views: Set[ArrayBuffer[Int]]): RoMap = {
+    val roMap = new MHashMap[Int, MSet[ArrayBuffer[Int]]] with MMultiMap[Int, ArrayBuffer[Int]]
+
+    addToRoMap(views, roMap)
+
+    roMap
+  }
+
+  def generate(views: Set[ArrayBuffer[Int]],
                roMap: RoMap,
-               aLen: Int,
-               existing: MSet[Configuration.Identifier]): Set[Vector[Int]] = {
+               existing: MSet[ArrayBuffer[Int]]): Set[ArrayBuffer[Int]] = {
 
-    val viewIdentifiers = views.map(v => Configuration.makeIdentifier(v, aLen))
+    // All views should be of equal length, so this is valid.
+    val viewLength = views.head.length
 
-    def generateCandidates(view: Vector[Int]): Option[MSet[Vector[Int]]] = {
+    // Create once and reuse
+    val currentCandidate = ArrayBuffer.fill(viewLength + 1){0}
 
+    def generateCandidates(view: ArrayBuffer[Int]): Option[MSet[ArrayBuffer[Int]]] = {
+
+      val firstState = view.head
       val secondState = view.tail.head
+
+      def updateCurrentCandidate(first: Int, second: Int, rest: ArrayBuffer[Int]): ArrayBuffer[Int] = {
+        currentCandidate(0) = first
+        currentCandidate(1) = second
+        (0 until rest.length).foreach(index => currentCandidate(index + 2) = rest(index))
+        currentCandidate
+      }
 
       if (roMap.isDefinedAt(secondState)) {
         val endings = roMap(secondState)
         val candidates = for (ending <- endings
-          if existing.contains(Configuration.makeIdentifierFixedStart(view.head, secondState, ending, aLen))
+          if !existing.contains(updateCurrentCandidate(firstState, secondState, ending))
         ) yield {
-          view.head +: secondState +: ending
+          currentCandidate.clone()
         }
         if (candidates.nonEmpty) {
           Some(candidates)
@@ -76,17 +88,21 @@ object Concretisation {
       }
     }
 
-    def testCandidate(candidate: Vector[Int], existing: MSet[Configuration.Identifier]): Boolean = {
+    val testView = ArrayBuffer.fill(viewLength)(0)
+    var excludedState = 0
 
-      def candidateIdentifier = Configuration.makeIdentifier(candidate, aLen)
+    def testCandidate(candidate: ArrayBuffer[Int], existing: MSet[ArrayBuffer[Int]]): Boolean = {
 
       def testCandidate_(pos: Int): Boolean = {
         if (pos == candidate.length) {
-          existing.add(candidateIdentifier)
           true
         } else {
-          val subVecIdentifier = Configuration.makeIdentifierSkip(candidate, aLen, pos)
-          if (viewIdentifiers.contains(subVecIdentifier)) {
+          if (pos > 0) {
+            val newExcluded = testView(pos - 1)
+            testView(pos - 1) = excludedState
+            excludedState = newExcluded
+          }
+          if (views.contains(testView)) {
             testCandidate_(pos + 1)
           } else {
             false
@@ -94,14 +110,14 @@ object Concretisation {
         }
       }
 
-      if (existing.contains(candidateIdentifier)) {
-        false
-      } else {
-        testCandidate_(0)
+      excludedState = candidate.head
+      for (i <- 0 until testView.length) {
+        testView(i) = candidate(i + 1)
       }
+      testCandidate_(0)
     }
 
     val candidates = views.map(generateCandidates).flatten.flatten
     candidates.filter(candidate => testCandidate(candidate, existing))
-  }
+  }*/
 }

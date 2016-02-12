@@ -66,15 +66,21 @@
         <h1>Introduction</h1>
     </div>
     <p>
-        Toolname is a tool for verifying... It's written in <a href="http://scala-lang.org/">Scala</a> which builds
-        on Java. This means that Toolname runs in any environment that supports Java. The code is available on GitHub
-        for free under [Figure out good license].
+        Toolname is a tool for verifying [MORE INFO ABOUT THE TOOL] It's written in <a href="http://scala-lang.org/">Scala</a>
+        which builds on Java. This means that Toolname runs in any environment that supports Java. The code is available on GitHub
+        for free under the <a href="http://www.gnu.org/licenses/gpl.html">GNU General Public License version 3 (GPL-3.0)</a>.
+    </p>
+    <p>
+        Toolname relies on Scala and the build tool Scala sbt. It is able to output graphs in the
+        <a href="http://graphviz.org/">graphviz dot-format</a>. To view such graphs the graphviz tool is required.
+        While this can be useful, it is not necessary to run the tool.
+    </p>
 
     <a class="anchor" name="installation"></a>
     <div class="page-header">
         <h1>Installation</h1>
     </div>
-    <p>Installing [Toolname] is easy. Toolname requires Scala and the build tool sbt.
+    <p>Installing Toolname is easy. Toolname requires Scala and the build tool sbt.
         To install Toolname, follow these steps:
 
     <ol>
@@ -110,7 +116,7 @@
         (a sample file is included in the source from GitHub) located in the
         same directory as the executable. Parameters supplied through the command line take precedence over parameters
         from config.txt. Commands are always specified as a key-value-pair. Some commands are mandatory, while other
-        have default values.
+        have default values. If the tool outputs any files, these are located in a directory called <b>result</b>.
     </p>
     <p>
         Parameters in config.txt are specified like this:
@@ -154,22 +160,24 @@
             <td>Set maximum k</td>
             <td>max_k</td>
             <td>Specifies the maximum k value, after which the execution will end and the result will be
-                inconclusive.</td>
+                unclear.</td>
             <td>No</td>
             <td>5</td>
         </tr>
         <tr>
-            <td>Generate .dot-file for the protocol. If this parameters is set to true, a file named <b>protocol.dot</b>
-                is generated in the result directory.</td>
+            <td>Generate .dot-file for the protocol. If this parameters is set to <b>true</b>, a file named <b>Protocol.dot</b>
+                is generated in the result directory. If this parameter is set to <b>only</b>, only the protocol file
+                will be generated, nothing else.
+            </td>
             <td>protocol_dot</td>
-            <td>true/false</td>
+            <td>true/false/only</td>
             <td>No</td>
             <td>false</td>
         </tr>
         <tr>
             <td>Generate .dot-file for counter example. If a bad state is reachable this means that there is a
-                series of posts leading to it. If this parameter is set to true, a file named
-                <b>counter_example.dot</b> is created in the result directory.</td>
+                series of posts leading to it. If this parameter is set to <b>true</b>, a file named
+                <b>CounterExample.dot</b> is created in the result directory.</td>
             <td>counter_dot</td>
             <td>true/false</td>
             <td>No</td>
@@ -177,9 +185,8 @@
         </tr>
         <tr>
             <td>
-                Generate log file. If this parameter is set to true, a file called <b>log.txt</b> containing
-                various information about the execution is is created in the result directory. If this parameter is set
-                to false, sat/unsat will be the only output from the program.
+                Generate log file. If this parameter is set to true, a file called <b>Log.txt</b> containing
+                various information about the execution is is created in the result directory.
             </td>
             <td>log_file</td>
             <td>true/false</td>
@@ -197,10 +204,10 @@
     </div>
 
     <p>
-        The protocol file consists of three parts: a declaration of available states, initial configurations and a
-        set of rules, in that order. Any line starting with a '%' or any empty line is ignored. Each declaration type
-        will be shown with example code. Combining the example code snippets yields a valid protocol file
-        (but probably not of any meaningful protocol).
+        The protocol file consists of four parts: a declaration of available states, initial configurations, the bad
+        configuration and a set of rules, in that order. Any line starting with a '%' or any empty line is ignored.
+        Each declaration type will be shown with example code. Combining the example code snippets yields a valid
+        protocol file (but probably not of any meaningful protocol).
     </p>
 
     <h2>States</h2>
@@ -248,6 +255,20 @@
 
     </div>
 
+    <h2>Bad configuration</h2>
+    <p>
+        The bad configuration declaration begins with a line with the text "Bad configuration:". The following
+        line should contain a comma separated list representing a bad configuration. Any configuration which contains
+        the bad configuration as a sub word is bad.
+    </p>
+    <div class="code">
+        % This defines (Red, Yellow) as the bad configuration (comma separated, white space is ignored).<br>
+        % Any configuration that contains a Red state to the left of a Yellow state is bad.<br>
+        Bad configuration:<br>
+        Red, Yellow<br>
+
+    </div>
+
     <h2>Rules</h2>
     <p>
         There are 3 types of possible rules: Unrestricted, Existential and Universal. Existential and Universal rules
@@ -274,177 +295,6 @@
         Black A R (White, Red) -> White
 
     </div>
-    <h1>
-        <span class="label label-default">Default</span>
-        <span class="label label-primary">Primary</span>
-        <span class="label label-success">Success</span>
-        <span class="label label-info">Info</span>
-        <span class="label label-warning">Warning</span>
-        <span class="label label-danger">Danger</span>
-    </h1>
-    <h2>
-        <span class="label label-default">Default</span>
-        <span class="label label-primary">Primary</span>
-        <span class="label label-success">Success</span>
-        <span class="label label-info">Info</span>
-        <span class="label label-warning">Warning</span>
-        <span class="label label-danger">Danger</span>
-    </h2>
-    <h3>
-        <span class="label label-default">Default</span>
-        <span class="label label-primary">Primary</span>
-        <span class="label label-success">Success</span>
-        <span class="label label-info">Info</span>
-        <span class="label label-warning">Warning</span>
-        <span class="label label-danger">Danger</span>
-    </h3>
-    <h4>
-        <span class="label label-default">Default</span>
-        <span class="label label-primary">Primary</span>
-        <span class="label label-success">Success</span>
-        <span class="label label-info">Info</span>
-        <span class="label label-warning">Warning</span>
-        <span class="label label-danger">Danger</span>
-    </h4>
-    <h5>
-        <span class="label label-default">Default</span>
-        <span class="label label-primary">Primary</span>
-        <span class="label label-success">Success</span>
-        <span class="label label-info">Info</span>
-        <span class="label label-warning">Warning</span>
-        <span class="label label-danger">Danger</span>
-    </h5>
-    <h6>
-        <span class="label label-default">Default</span>
-        <span class="label label-primary">Primary</span>
-        <span class="label label-success">Success</span>
-        <span class="label label-info">Info</span>
-        <span class="label label-warning">Warning</span>
-        <span class="label label-danger">Danger</span>
-    </h6>
-    <p>
-        <span class="label label-default">Default</span>
-        <span class="label label-primary">Primary</span>
-        <span class="label label-success">Success</span>
-        <span class="label label-info">Info</span>
-        <span class="label label-warning">Warning</span>
-        <span class="label label-danger">Danger</span>
-    </p>
-
-
-    <div class="page-header">
-        <h1>Badges</h1>
-    </div>
-    <p>
-        <a href="#">Inbox <span class="badge">42</span></a>
-    </p>
-    <ul class="nav nav-pills" role="tablist">
-        <li role="presentation" class="active"><a href="#">Home <span class="badge">42</span></a></li>
-        <li role="presentation"><a href="#">Profile</a></li>
-        <li role="presentation"><a href="#">Messages <span class="badge">3</span></a></li>
-    </ul>
-
-
-    <div class="page-header">
-        <h1>Dropdown menus</h1>
-    </div>
-    <div class="dropdown theme-dropdown clearfix">
-        <a id="dropdownMenu1" href="#" class="sr-only dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
-        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-            <li class="active"><a href="#">Action</a></li>
-            <li><a href="#">Another action</a></li>
-            <li><a href="#">Something else here</a></li>
-            <li role="separator" class="divider"></li>
-            <li><a href="#">Separated link</a></li>
-        </ul>
-    </div>
-
-
-    <div class="page-header">
-        <h1>Navs</h1>
-    </div>
-    <ul class="nav nav-tabs" role="tablist">
-        <li role="presentation" class="active"><a href="#">Home</a></li>
-        <li role="presentation"><a href="#">Profile</a></li>
-        <li role="presentation"><a href="#">Messages</a></li>
-    </ul>
-    <ul class="nav nav-pills" role="tablist">
-        <li role="presentation" class="active"><a href="#">Home</a></li>
-        <li role="presentation"><a href="#">Profile</a></li>
-        <li role="presentation"><a href="#">Messages</a></li>
-    </ul>
-
-
-    <div class="page-header">
-        <h1>Navbars</h1>
-    </div>
-
-    <nav class="navbar navbar-default">
-        <div class="container">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a class="navbar-brand" href="#">Project name</a>
-            </div>
-            <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav">
-                    <li class="active"><a href="#">Home</a></li>
-                    <li><a href="#about">About</a></li>
-                    <li><a href="#contact">Contact</a></li>
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="#">Action</a></li>
-                            <li><a href="#">Another action</a></li>
-                            <li><a href="#">Something else here</a></li>
-                            <li role="separator" class="divider"></li>
-                            <li class="dropdown-header">Nav header</li>
-                            <li><a href="#">Separated link</a></li>
-                            <li><a href="#">One more separated link</a></li>
-                        </ul>
-                    </li>
-                </ul>
-            </div><!--/.nav-collapse -->
-        </div>
-    </nav>
-
-    <nav class="navbar navbar-inverse">
-        <div class="container">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a class="navbar-brand" href="#">Project name</a>
-            </div>
-            <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav">
-                    <li class="active"><a href="#">Home</a></li>
-                    <li><a href="#about">About</a></li>
-                    <li><a href="#contact">Contact</a></li>
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="#">Action</a></li>
-                            <li><a href="#">Another action</a></li>
-                            <li><a href="#">Something else here</a></li>
-                            <li role="separator" class="divider"></li>
-                            <li class="dropdown-header">Nav header</li>
-                            <li><a href="#">Separated link</a></li>
-                            <li><a href="#">One more separated link</a></li>
-                        </ul>
-                    </li>
-                </ul>
-            </div><!--/.nav-collapse -->
-        </div>
-    </nav>
-
 
 </div> <!-- /container -->
 
