@@ -1,3 +1,5 @@
+package uu_tool_1
+
 import scala.io.Source
 
 abstract class ProtocolOutput
@@ -118,24 +120,24 @@ class Parameters(args: Array[String]) {
    * @return the value of the parameter, from the command line, the config-file or
    *         default value, in that priority.
    */
-  private def get(argName: String): Any = {
+  private def get[A](argName: String): A = {
     if (commandLineMap.contains(argName)) {
-      commandLineMap(argName)
+      commandLineMap(argName).asInstanceOf[A]
     } else if (fileMap.contains(argName)) {
-      fileMap(argName)
+      fileMap(argName).asInstanceOf[A]
     } else {
       val parameter = commandMap(argName)
       if (parameter.required) {
         throw new Exception("Missing required parameter: " + argName)
       } else {
-        parameter.default
+        parameter.default.asInstanceOf[A]
       }
     }
   }
-  def getProtocolFile: String = get(ProtocolFile.name).asInstanceOf[String]
-  def getMakeProtocolDot: ProtocolOutput = get(ProtocolDot.name).asInstanceOf[ProtocolOutput]
-  def getMakeCounterDot: Boolean = get(CounterDot.name).asInstanceOf[Boolean]
-  def getMakeLogFile: Boolean = get(LogFile.name).asInstanceOf[Boolean]
-  def getMaxK: Int = get(MaxK.name).asInstanceOf[Int]
+  def getProtocolFile: String = get[String](ProtocolFile.name)
+  def getMakeProtocolDot: ProtocolOutput = get[ProtocolOutput](ProtocolDot.name)
+  def getMakeCounterDot: Boolean = get[Boolean](CounterDot.name)
+  def getMakeLogFile: Boolean = get[Boolean](LogFile.name)
+  def getMaxK: Int = get[Int](MaxK.name)
 
 }

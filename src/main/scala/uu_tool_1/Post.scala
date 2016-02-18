@@ -1,3 +1,7 @@
+package uu_tool_1
+
+import uu_tool_1.Configuration.Config
+
 import scala.collection.mutable.{Set => MSet, ArrayBuffer}
 
 /**
@@ -20,9 +24,9 @@ object Post {
    * @return return value is dependent on ruleEvaluator, see single and singleWithTransitions
    *         for more details.
    */
-  private def general[A](configuration: ArrayBuffer[Int],
+  private def general[A](configuration: Config,
                          rules: Set[Rule],
-                         ruleEvaluator: (ArrayBuffer[Int], Rule, Int) => Option[A]): Set[A] = {
+                         ruleEvaluator: (Config, Rule, Int) => Option[A]): Set[A] = {
 
     val range = List.range(0, configuration.length)
 
@@ -41,10 +45,10 @@ object Post {
    * @param rules set of rules
    * @return all resulting configurations from executing rules from every state in configuration
    */
-  def single(configuration: ArrayBuffer[Int],
-                     rules: Set[Rule]): Set[ArrayBuffer[Int]] = {
+  def single(configuration: Config,
+                     rules: Set[Rule]): Set[Config] = {
 
-    def ruleEvaluator(configuration: ArrayBuffer[Int], rule: Rule, index: Int) = rule.testAndExecute(configuration, index)
+    def ruleEvaluator(configuration: Config, rule: Rule, index: Int) = rule.testAndExecute(configuration, index)
     general(configuration, rules, ruleEvaluator)
   }
 
@@ -59,10 +63,10 @@ object Post {
    * @return a set of tuples containing starting configuration, state index where rule was executed,
    *         the rule used and the resulting configuration.
    */
-  def singleWithTransitions(configuration: ArrayBuffer[Int],
-                                  rules: Set[Rule]): Set[(ArrayBuffer[Int], Int, Rule, ArrayBuffer[Int])] = {
+  def singleWithTransitions(configuration: Config,
+                                  rules: Set[Rule]): Set[(Config, Int, Rule, Config)] = {
 
-    def ruleEvaluator(configuration: ArrayBuffer[Int], rule: Rule, index: Int) = {
+    def ruleEvaluator(configuration: Config, rule: Rule, index: Int) = {
       rule.testAndExecute(configuration, index) match {
         case Some(config) => Some((configuration, index, rule, config))
         case None => None
@@ -80,7 +84,7 @@ object Post {
    * @return the resulting set of configurations from running repeated posts from the
    *         initial configurations
    */
-  def fixPoint(configurations: Set[ArrayBuffer[Int]], rules: Set[Rule]): Set[ArrayBuffer[Int]] = {
+  def fixPoint(configurations: Set[Config], rules: Set[Rule]): Set[Config] = {
     var accumulatedConfigurations = configurations
     var newConfigurations = configurations
 
@@ -104,13 +108,13 @@ object Post {
    * @return a set of tuples containing starting configuration, state index where rule
    *         was executed, the rule used and the resulting configuration.
    */
-  def fixPointWithTransitions(configurations: Set[ArrayBuffer[Int]],
-                              rules: Set[Rule]): Set[(ArrayBuffer[Int], Int, Rule, ArrayBuffer[Int])] = {
+  def fixPointWithTransitions(configurations: Set[Config],
+                              rules: Set[Rule]): Set[(Config, Int, Rule, Config)] = {
 
     var accumulatedConfigurations = configurations
     var newConfigurations = configurations
-    var accumulatedCT = Set[(ArrayBuffer[Int], Int, Rule, ArrayBuffer[Int])]()
-    var foundConfigurations = MSet[ArrayBuffer[Int]]()
+    var accumulatedCT = Set[(Config, Int, Rule, Config)]()
+    var foundConfigurations = MSet[Config]()
 
     while(newConfigurations.nonEmpty) {
       val currentCT = newConfigurations.flatMap(configuration => singleWithTransitions(configuration, rules))
@@ -118,7 +122,7 @@ object Post {
       newConfigurations = currentConfigurations -- accumulatedConfigurations
       accumulatedConfigurations = accumulatedConfigurations | newConfigurations
 
-      val added = MSet[ArrayBuffer[Int]]()
+      val added = MSet[Config]()
       val newCT = currentCT.filter{case(_, _, _, to) =>
         // Wow! Such imperative!
         val res = newConfigurations.contains(to) && !added.contains(to)

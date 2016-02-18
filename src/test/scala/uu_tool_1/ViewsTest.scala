@@ -1,4 +1,5 @@
 import org.scalatest._
+import uu_tool_1.Views
 import scala.collection.mutable.{ArrayBuffer, Set => MSet}
 
 class ViewsTest extends FlatSpec with Matchers {

@@ -1,11 +1,19 @@
-import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, Paths}
+import uu_tool_1._
+
+
 import scala.collection.mutable.ArrayBuffer
 
 object main {
-  val OutputDir = "result/"
 
   def main(args:Array[String]): Unit = {
+    val x = Concretisation.testCandidate(ArrayBuffer(1, 2, 3, 4, 5), scala.collection.mutable.Set(ArrayBuffer(1, 3, 4, 5), ArrayBuffer(2, 3, 4, 5), ArrayBuffer(1, 2, 4, 5), ArrayBuffer(1, 2, 3, 5)))
+    println(x)
+    val y = Concretisation.testCandidate(ArrayBuffer(1, 2, 3, 4, 5), scala.collection.mutable.Set(ArrayBuffer(1, 3, 4, 5), ArrayBuffer(2, 3, 4, 5), ArrayBuffer(1, 2, 4, 5), ArrayBuffer(1, 2, 3, 5), ArrayBuffer(1, 2, 3, 4)))
+    println(y)
+    Concretisation.findCandidates(Set(ArrayBuffer(1, 3, 4, 5), ArrayBuffer(2, 3, 4, 5), ArrayBuffer(1, 2, 4, 5), ArrayBuffer(1, 2, 3, 5)))
+  }
+
+  def main2(args:Array[String]): Unit = {
     val parameters = new Parameters(args)
 
     val protocolFile = parameters.getProtocolFile
@@ -60,16 +68,17 @@ object main {
     }
   }
 
-  def writeToFile(fileName: String, data: String): Unit = {
-    val filePath = OutputDir + fileName
-    Files.write(Paths.get(filePath), data.getBytes(StandardCharsets.UTF_8))
-  }
 
-  def timeFunction(f: () => Unit): Unit = {
+  /**
+   * Times and prints the execution of f.
+   * @param f function to time
+   */
+  def timeFunction[A](f: () => A, taskName: String): A = {
     val t0 = System.nanoTime()
-    f()
+    val res = f()
     val t1 = System.nanoTime()
-    println("Elapsed time: " + (t1 - t0) / 1000000000.0 + "ns")
+    println("Elapsed time (" + taskName + "): " + (t1 - t0) / 1000000000.0 + "ns")
+    res
   }
 
 }

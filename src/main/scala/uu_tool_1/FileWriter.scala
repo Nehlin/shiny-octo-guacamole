@@ -1,3 +1,5 @@
+package uu_tool_1
+
 import java.io.File
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Paths, Files}

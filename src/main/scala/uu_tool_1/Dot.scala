@@ -1,11 +1,21 @@
+package uu_tool_1
+
+import uu_tool_1.Configuration.Config
+
 import scala.collection.mutable.ArrayBuffer
 
 /**
  * Dot is a format for displaying graphs. It is a human readable format.
  * More information about the format can be found here:
  * http://www.graphviz.org/content/dot-language
+ *
  * NOTE: This code is not covered by any test-cases as it is both non-
  * essential and hard to test.
+ *
+ * NOTE: Dot generation is slow. This is not meant to be optimised.
+ * Generating the necessary data is in some cases slow as well. This is
+ * intentional as speed optimisations are left for essential code, and dot-
+ * generation is just a luxury feature.
  */
 object Dot {
   /**
@@ -114,7 +124,7 @@ object Dot {
    * @param internalToName conversion from internal state representation to original name
    * @return the .dot-string that represents configuration
    */
-  private def makeConfiguration(configuration: ArrayBuffer[Int],
+  private def makeConfiguration(configuration: Config,
                                 configIndex: Int,
                                 internalToName: Map[Int, String]): String = {
 
@@ -163,7 +173,7 @@ object Dot {
    * @param internalToName conversion from internal state representation to original name
    * @return .dot string with the graph-data of indexedConfigurations
    */
-  private def makeIndexedConfigurations(indexedConfigurations: List[(ArrayBuffer[Int], Int)],
+  private def makeIndexedConfigurations(indexedConfigurations: List[(Config, Int)],
                                     internalToName: Map[Int, String]): String = {
 
     indexedConfigurations.map{case(config, index) => makeConfiguration(config, index, internalToName)}.mkString
@@ -176,7 +186,7 @@ object Dot {
    * @param internalToName conversion from internal state representation to original name
    * @return .dot string with the graph-data of configurations
    */
-  def makeConfigurations(configurations: Set[ArrayBuffer[Int]], internalToName: Map[Int, String]): String = {
+  def makeConfigurations(configurations: Set[Config], internalToName: Map[Int, String]): String = {
     val sortedAndIndexed = configurations.toList.sortWith(Configuration.compareBool).zipWithIndex
     makeGraphStructure(makeIndexedConfigurations(sortedAndIndexed, internalToName))
   }
@@ -260,7 +270,7 @@ object Dot {
    * @return .dot-graph representing the series of posts represented by
    *         configsAndTransitions
    */
-  def makeConfigurationsWithTransitions(configsAndTransitions: Set[(ArrayBuffer[Int], Int, Rule, ArrayBuffer[Int])],
+  def makeConfigurationsWithTransitions(configsAndTransitions: Set[(Config, Int, Rule, Config)],
                                         internalToName: Map[Int, String]): String = {
 
     val lhs = configsAndTransitions.map{case(c, _, _, _) => c}
@@ -288,7 +298,7 @@ object Dot {
    * @param viewsPerRow number of views per row
    * @return a .dot-graph containing views positioned in a grid.
    */
-  def makeViews(views: Set[ArrayBuffer[Int]], internalToName: Map[Int, String], viewsPerRow: Int): String = {
+  def makeViews(views: Set[Config], internalToName: Map[Int, String], viewsPerRow: Int): String = {
     val sortedViews = views.toList.sortWith(Configuration.compareBool)
 
     val configs = makeIndexedConfigurations(sortedViews.zipWithIndex, internalToName)

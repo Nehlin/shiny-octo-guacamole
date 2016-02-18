@@ -1,4 +1,5 @@
 import org.scalatest._
+import uu_tool_1.{Universal, Existential, Unrestricted, Rule, Left, Right, Post}
 import scala.collection.mutable.ArrayBuffer
 
 class PostTest extends FlatSpec with Matchers {

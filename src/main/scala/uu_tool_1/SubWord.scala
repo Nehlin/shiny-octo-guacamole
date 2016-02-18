@@ -1,3 +1,5 @@
+package uu_tool_1
+
 import scala.collection.mutable.ArrayBuffer
 
 object SubWord {

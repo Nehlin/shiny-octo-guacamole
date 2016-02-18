@@ -1,4 +1,5 @@
 import org.scalatest._
+import uu_tool_1.{Unrestricted, Universal, Existential, Both, Left, Right}
 import scala.collection.mutable.ArrayBuffer
 
 class RuleTest extends FlatSpec with Matchers {

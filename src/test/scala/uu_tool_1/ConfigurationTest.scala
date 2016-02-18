@@ -1,18 +1,10 @@
 import org.scalatest._
+import uu_tool_1.Configuration
 import scala.collection.mutable.ArrayBuffer
 
 class ConfigurationTest extends FlatSpec with Matchers {
 
   val c = ArrayBuffer(0, 1, 2, 3, 4)
-
-  "Configurations" should "know leftOf and rightOf" in {
-    Configuration.leftOf(c, 0) should be(ArrayBuffer())
-    Configuration.leftOf(c, 2) should be(ArrayBuffer(0, 1))
-    Configuration.leftOf(c, 4) should be(ArrayBuffer(0, 1, 2, 3))
-    Configuration.rightOf(c, 0) should be(ArrayBuffer(1, 2, 3, 4))
-    Configuration.rightOf(c, 2) should be(ArrayBuffer(3, 4))
-    Configuration.rightOf(c, 4) should be(ArrayBuffer())
-  }
 
   val c1 = ArrayBuffer(1, 1)
   val c2 = ArrayBuffer(1, 2)

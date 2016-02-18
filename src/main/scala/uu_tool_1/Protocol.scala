@@ -1,3 +1,7 @@
+package uu_tool_1
+
+import uu_tool_1.Configuration.Config
+
 import scala.collection.mutable.ArrayBuffer
 import scala.io.Source
 
@@ -49,7 +53,7 @@ class Protocol(fileName:String) {
   val nameToInternal = stateNames.zipWithIndex.toMap
   val internalToName = stateNames.zipWithIndex.map(_.swap).toMap
 
-  private def parseBadConfiguration(badConfigString: String): ArrayBuffer[Int] = {
+  private def parseBadConfiguration(badConfigString: String): Config = {
     val stateNames = badConfigString.split(",").map(_.trim)
     stateNames.map(nameToInternal(_)).to[ArrayBuffer]
   }
@@ -102,7 +106,7 @@ class Protocol(fileName:String) {
   private val initialConfigurationState = nameToInternal(initialConfigurationLine)
 
   val rules = ruleLines.map(ruleString => parseRule(ruleString)).toSet
-  def initialConfiguration(length: Int): ArrayBuffer[Int] =
+  def initialConfiguration(length: Int): Config =
     ArrayBuffer.fill(initialConfigurationState)(length)
   val badConfiguration = parseBadConfiguration(badConfigurationLine)
 }

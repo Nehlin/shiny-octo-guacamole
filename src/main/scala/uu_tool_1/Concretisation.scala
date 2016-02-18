@@ -1,20 +1,26 @@
+package uu_tool_1
+
+import uu_tool_1.Configuration.Config
+
 import scala.collection.mutable.{HashMap => MHashMap, MultiMap => MMultiMap, Set => MSet, ArrayBuffer}
-import scala.collection.SeqView
 
 object Concretisation {
 
   /* Naive concretisation function. Note that this code needs to be replaced
-   * for the final version. This is extremely slow and can be rewritten with
-   * far better performance. See this as placeholder code so that work can
-   * continue until the real concretisation is implemented.
+   * for the final version. This is slow and can be rewritten with far better
+   * performance. See this as placeholder code so that work can continue until
+   * the real concretisation is implemented.
+   *
+   * The good thing about the naive method is that it is simple to understand
+   * so it can be used for testing other implementations.
    */
-  def naive(views: Set[ArrayBuffer[Int]], length: Int): Set[ArrayBuffer[Int]] = {
+  def naive(views: Set[Config], length: Int): Set[Config] = {
     val alphabet = views.foldLeft(Set[Int]())((acc, curr) => acc ++ curr.toSet).toArray
     val aLen = alphabet.length
 
-    val mSet = MSet[ArrayBuffer[Int]]()
+    val mSet = MSet[Config]()
 
-    def configForNum(num: Int, pos: Int): ArrayBuffer[Int] = {
+    def configForNum(num: Int, pos: Int): Config = {
       if (pos == 0) {
         ArrayBuffer(alphabet(num))
       } else {
@@ -31,27 +37,54 @@ object Concretisation {
     })
     mSet.toSet
   }
-/*
-  type RoMap = MHashMap[Int, MSet[ArrayBuffer[Int]]] with MMultiMap[Int, ArrayBuffer[Int]]
 
-  def addToRoMap(views: Set[ArrayBuffer[Int]], roMap: RoMap): Unit = {
+  def testCandidate(candidate: Config, views: MSet[Config]): Boolean = {
+    var excludedState = candidate.head
+    var excludedSwap = 0
+    val currentView = candidate.tail
+
+    var res = true
+    var i = -1
+    while (i < currentView.length && res) {
+      if (i >= 0) {
+        excludedSwap = currentView(i)
+        currentView(i) = excludedState
+        excludedState = excludedSwap
+      }
+      println(currentView, views.contains(currentView))
+      res = views.contains(currentView)
+
+      i += 1
+    }
+
+    res
+  }
+
+  def findCandidates(views: Set[Config]): Set[Config] = {
+    println(views)
+    Set()
+  }
+/*
+  type RoMap = MHashMap[Int, MSet[Config]] with MMultiMap[Int, Config]
+
+  def addToRoMap(views: Set[Config], roMap: RoMap): Unit = {
     views.map(view => {
       val key = view.head
       roMap.addBinding(key, view.drop(1))
     })
   }
 
-  def makeRoMap(views: Set[ArrayBuffer[Int]]): RoMap = {
-    val roMap = new MHashMap[Int, MSet[ArrayBuffer[Int]]] with MMultiMap[Int, ArrayBuffer[Int]]
+  def makeRoMap(views: Set[Config]): RoMap = {
+    val roMap = new MHashMap[Int, MSet[Config]] with MMultiMap[Int, Config]
 
     addToRoMap(views, roMap)
 
     roMap
   }
 
-  def generate(views: Set[ArrayBuffer[Int]],
+  def generate(views: Set[Config],
                roMap: RoMap,
-               existing: MSet[ArrayBuffer[Int]]): Set[ArrayBuffer[Int]] = {
+               existing: MSet[Config]): Set[Config] = {
 
     // All views should be of equal length, so this is valid.
     val viewLength = views.head.length
@@ -59,12 +92,12 @@ object Concretisation {
     // Create once and reuse
     val currentCandidate = ArrayBuffer.fill(viewLength + 1){0}
 
-    def generateCandidates(view: ArrayBuffer[Int]): Option[MSet[ArrayBuffer[Int]]] = {
+    def generateCandidates(view: Config): Option[MSet[Config]] = {
 
       val firstState = view.head
       val secondState = view.tail.head
 
-      def updateCurrentCandidate(first: Int, second: Int, rest: ArrayBuffer[Int]): ArrayBuffer[Int] = {
+      def updateCurrentCandidate(first: Int, second: Int, rest: Config): Config = {
         currentCandidate(0) = first
         currentCandidate(1) = second
         (0 until rest.length).foreach(index => currentCandidate(index + 2) = rest(index))
@@ -91,7 +124,7 @@ object Concretisation {
     val testView = ArrayBuffer.fill(viewLength)(0)
     var excludedState = 0
 
-    def testCandidate(candidate: ArrayBuffer[Int], existing: MSet[ArrayBuffer[Int]]): Boolean = {
+    def testCandidate(candidate: Config, existing: MSet[Config]): Boolean = {
 
       def testCandidate_(pos: Int): Boolean = {
         if (pos == candidate.length) {

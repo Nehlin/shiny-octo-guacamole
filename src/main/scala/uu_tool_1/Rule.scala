@@ -1,3 +1,7 @@
+package uu_tool_1
+
+import uu_tool_1.Configuration.Config
+
 import scala.collection.mutable.ArrayBuffer
 
 abstract class Side
@@ -94,7 +98,7 @@ abstract class Rule(f: Int, t: Int) extends Ordered[Rule] {
    * @param index index of state to test in configuration
    * @return true iff configuration(index) == from
    */
-  def testFromState(configuration: ArrayBuffer[Int], index: Int): Boolean = {
+  def testFromState(configuration: Config, index: Int): Boolean = {
     configuration(index) == from
   }
 
@@ -104,7 +108,7 @@ abstract class Rule(f: Int, t: Int) extends Ordered[Rule] {
    * @param index index of state to test in configuration
    * @return true iff all conditions for the rule evaluate to true.
    */
-  def test(configuration: ArrayBuffer[Int], index: Int): Boolean
+  def test(configuration: Config, index: Int): Boolean
 
 
   /**
@@ -116,7 +120,7 @@ abstract class Rule(f: Int, t: Int) extends Ordered[Rule] {
    * @param index index of state to test and update
    * @return Some(updated configuration) if the rule test is successful, None otherwise.
    */
-  def testAndExecute(configuration: ArrayBuffer[Int], index: Int): Option[ArrayBuffer[Int]] = {
+  def testAndExecute(configuration: Config, index: Int): Option[Config] = {
     if (test(configuration, index)) {
       Some(configuration.updated(index, to))
     } else {
@@ -160,7 +164,7 @@ case class Unrestricted(f: Int, t: Int) extends Rule(f, t) {
    * @param index index of state to test in configuration
    * @return true iff the test state is equal to the from-state.
    */
-  def test(configuration: ArrayBuffer[Int], index: Int): Boolean = testFromState(configuration, index)
+  def test(configuration: Config, index: Int): Boolean = testFromState(configuration, index)
 }
 
 /**
@@ -172,10 +176,11 @@ case class Unrestricted(f: Int, t: Int) extends Rule(f, t) {
  * @param si side that the quantifier condition applies to
  * @param qs string representation of the quantifier
  */
-abstract class QuantifierRule(f: Int, t: Int, st: Set[Int], si: Side, qs: String) extends Rule(f, t) {
+abstract class QuantifierRule(f: Int, t: Int, st: Set[Int], si: Side, qs: String, itv: Boolean) extends Rule(f, t) {
   val quantifierString = qs
   val conditionStates = st
   val side = si
+  val initialTestValue = itv
 
   private def statesStringBasic(stateStrings: Set[String]): String = {
     val sideString = if (side == Left) ".L" else if (side == Right) ".R" else ""
@@ -195,13 +200,30 @@ abstract class QuantifierRule(f: Int, t: Int, st: Set[Int], si: Side, qs: String
     stringFunTranslated(internalToName, from, to, Some(statesStringTranslated(internalToName)))
 
   /**
+   * This method will be run as a fold on all states to the specified side of the
+   * rule. The initial value for the accumulator is initialTestValue. This is where
+   * the rules are evaluated
+   *
+   * @param res accumulator value
+   * @param state current state in the folding
+   * @return the result of evaluating the rule for all states on the specified side.
+   */
+  def testFunction(res: Boolean, state: Int): Boolean
+
+  /**
    * Test for the quantifier condition.
    *
    * @param configuration test configuration
    * @param index index of state in configuration to test from
    * @return true iff the quantifier condition is satisfied
    */
-  def testQuantifier(configuration: ArrayBuffer[Int], index: Int): Boolean
+  def testQuantifier(configuration: Config, index: Int): Boolean = {
+    side match {
+      case Left => Configuration.leftOf[Boolean](configuration, index, initialTestValue, testFunction)
+      case Right => Configuration.rightOf[Boolean](configuration, index, initialTestValue, testFunction)
+      case Both => Configuration.bothSidesOf[Boolean](configuration, index, initialTestValue, testFunction)
+    }
+  }
 
   /**
    * A quantifier rule requires both the from-state test and the quantifier-test to be valid
@@ -211,7 +233,7 @@ abstract class QuantifierRule(f: Int, t: Int, st: Set[Int], si: Side, qs: String
    * @param index index of state to test in configuration
    * @return true iff all conditions for the rule evaluate to true.
    */
-  def test(configuration: ArrayBuffer[Int], index: Int): Boolean = {
+  def test(configuration: Config, index: Int): Boolean = {
     testFromState(configuration, index) && testQuantifier(configuration, index)
   }
 }
@@ -224,34 +246,14 @@ abstract class QuantifierRule(f: Int, t: Int, st: Set[Int], si: Side, qs: String
  * @param st states present in the quantifier condition
  * @param si side that the quantifier condition applies to
  */
-case class Existential(f: Int, t: Int, st: Set[Int], si: Side) extends QuantifierRule(f, t, st, si, "\u2203") {
+case class Existential(f: Int, t: Int, st: Set[Int], si: Side)
+  extends QuantifierRule(f, t, st, si, "\u2203", false) {
 
-  /**
-   * Evaluates to true iff there is at least one state from st present at the si from index in configuration
-   *
-   * NOTE: for performance reasons, Left and Right conditions should be rewritten similar to Both condition
-   * as leftOf and rightOf creates new ArrayBuffers, which is wasteful.
-   *
-   * @param configuration test configuration
-   * @param index index of state in configuration to test from
-   * @return true iff there is at least one state from st present at the side specified by si from the state
-   *         specified by index in configuration.
-   */
-  def testQuantifier(configuration: ArrayBuffer[Int], index: Int): Boolean = {
-    if (side == Both) {
-      (0 until configuration.length).foldLeft(false)((res, i) => {
-        if (res || i == index) {
-          res
-        } else {
-          conditionStates.contains(configuration(i))
-        }
-      })
+  def testFunction(res: Boolean, state: Int): Boolean = {
+    if (res) {
+      res
     } else {
-      val candidateStates = if (side == Left)
-        Configuration.leftOf(configuration, index)
-      else
-        Configuration.rightOf(configuration, index)
-      candidateStates.exists(st => conditionStates.contains(st))
+      conditionStates.contains(state)
     }
   }
 }
@@ -264,31 +266,14 @@ case class Existential(f: Int, t: Int, st: Set[Int], si: Side) extends Quantifie
  * @param st states present in the quantifier condition
  * @param si side that the quantifier condition applies to
  */
-case class Universal(f: Int, t: Int, st: Set[Int], si: Side) extends QuantifierRule(f, t, st, si, "\u2200") {
+case class Universal(f: Int, t: Int, st: Set[Int], si: Side)
+  extends QuantifierRule(f, t, st, si, "\u2200", true) {
 
-  /**
-   * true iff every state at at si from index in configuration is present in st, or more clearly: if every
-   * state at the specified side is one of the states present in si.
-   *
-   * @param configuration test configuration
-   * @param index index of state in configuration to test from
-   * @return true iff the quantifier condition is satisfied
-   */
-  def testQuantifier(configuration: ArrayBuffer[Int], index: Int): Boolean = {
-    if (side == Both) {
-      (0 until configuration.length).foldLeft(true)((res, i) => {
-        if (!res || i == index) {
-          res
-        } else {
-          conditionStates.contains(configuration(i))
-        }
-      })
+  def testFunction(res: Boolean, state: Int): Boolean = {
+    if (!res) {
+      res
     } else {
-      val candidateStates = if (side == Left)
-        Configuration.leftOf(configuration, index)
-      else
-        Configuration.rightOf(configuration, index)
-      candidateStates.forall(st => conditionStates.contains(st))
+      conditionStates.contains(state)
     }
   }
 }
