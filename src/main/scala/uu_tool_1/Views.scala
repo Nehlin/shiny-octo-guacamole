@@ -1,7 +1,5 @@
 package uu_tool_1
 
-import uu_tool_1.Configuration.Config
-
 import scala.collection.mutable.{Set => MSet, ArrayBuffer}
 
 object Views {
@@ -14,7 +12,7 @@ object Views {
    * @param includeAll if this is set, size will be ignored and all views will be created.
    * @return a set of views of a set size, or if includeAll is set, all views of a configuration
    */
-  private def general(configuration: Config, size: Option[Int], includeAll: Boolean): Set[Config] = {
+  private def general(configuration: ArrayBuffer[Int], size: Option[Int], includeAll: Boolean): Set[ArrayBuffer[Int]] = {
 
     def binarySum_(num: Int, sum: Int): Int = {
       if (num == 1) {
@@ -45,7 +43,7 @@ object Views {
      * @example subWord(Array("A", "B", "C", "D", "E"), 1) = Array("A") // 1 = 00001 => 10000
      * @example subWord(Array("A", "B", "C", "D", "E"), 11) = Array("A", "B", "D") //11 = 01011 => 11010
      */
-    def subWord(word: Config, bin: Int): Config = {
+    def subWord(word: ArrayBuffer[Int], bin: Int): ArrayBuffer[Int] = {
       val length = binarySum(bin)
       val res = ArrayBuffer.fill(length)(0)
       var insertPos = 0
@@ -77,14 +75,14 @@ object Views {
    * @param size size of created views
    * @return all views of size from configuration
    */
-  def fromConfiguration(configuration: Config, size: Int): Set[Config] = general(configuration, Some(size), false)
+  def fromConfiguration(configuration: ArrayBuffer[Int], size: Int): Set[ArrayBuffer[Int]] = general(configuration, Some(size), false)
 
   /**
    * Creates all views from a configuration
    * @param configuration original configuration
    * @return all views of all sizes from configuration
    */
-  def allFromConfiguration(configuration: Config): Set[Config] = general(configuration, None, true)
+  def allFromConfiguration(configuration: ArrayBuffer[Int]): Set[ArrayBuffer[Int]] = general(configuration, None, true)
 
   /**
    * Creates all views of a certain size from a set of configurations
@@ -92,8 +90,8 @@ object Views {
    * @param size size of created views
    * @return all views of size from the configurations
    */
-  def fromConfigurations(configurations: Set[Config], size: Int): Set[Config] = {
-    configurations.foldLeft(Set[Config]())((acc, config) => acc ++ fromConfiguration(config, size))
+  def fromConfigurations(configurations: Set[ArrayBuffer[Int]], size: Int): Set[ArrayBuffer[Int]] = {
+    configurations.foldLeft(Set[ArrayBuffer[Int]]())((acc, config) => acc ++ fromConfiguration(config, size))
   }
 
   /**
@@ -108,13 +106,13 @@ object Views {
    *         size of configuration, unless those views that are present in
    *         existing
    */
-  def fromConfigurationFixed(configuration: Config,
-                             existing: Option[MSet[Config]]): MSet[Config] = {
+  def fromConfigurationFixed(configuration: ArrayBuffer[Int],
+                             existing: Option[MSet[ArrayBuffer[Int]]]): MSet[ArrayBuffer[Int]] = {
 
 
     var excludedState = configuration.head
     val currentView = configuration.tail
-    def updateCurrentView(pos: Int): Config = {
+    def updateCurrentView(pos: Int): ArrayBuffer[Int] = {
       val pm1 = pos - 1
       if (pm1 >= 0) {
         val newExcluded = currentView(pm1)
@@ -124,7 +122,7 @@ object Views {
       currentView
     }
 
-    val res = MSet[Config]()
+    val res = MSet[ArrayBuffer[Int]]()
 
     (0 until configuration.length).foreach(index => {
       updateCurrentView(index)
@@ -147,8 +145,8 @@ object Views {
    *         size of configuration, unless those views that are present in
    *         existing
    */
-  def fromConfigurationsFixed(configurations: Set[Config],
-                              existing: Option[MSet[Config]]): Set[Config] = {
+  def fromConfigurationsFixed(configurations: Set[ArrayBuffer[Int]],
+                              existing: Option[MSet[ArrayBuffer[Int]]]): Set[ArrayBuffer[Int]] = {
 
     configurations.map(configuration => fromConfigurationFixed(configuration, existing)).flatten
   }

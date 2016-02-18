@@ -1,13 +1,11 @@
 package uu_tool_1
 
-import uu_tool_1.Configuration.Config
-
-import scala.collection.mutable.{Set => MSet}
+import scala.collection.mutable.{Set => MSet, ArrayBuffer}
 
 object AbstractPost {
 
-  def singleStepNaive(views: Set[Config],
-                      rules: Set[Rule], k: Int): Set[Config] = {
+  def singleStepNaive(views: Set[ArrayBuffer[Int]],
+                      rules: Set[Rule], k: Int): Set[ArrayBuffer[Int]] = {
     val concretisation = Concretisation.naive(views, k)
     val newConfigs = concretisation.map(cView => {
       Post.single(cView, rules)
@@ -16,7 +14,7 @@ object AbstractPost {
     Views.fromConfigurationsFixed(newConfigs, None)
   }
 
-  def fixPointNaive(views: Set[Config], rules: Set[Rule], k: Int): Set[Config] = {
+  def fixPointNaive(views: Set[ArrayBuffer[Int]], rules: Set[Rule], k: Int): Set[ArrayBuffer[Int]] = {
     var accumulatedViews = views
     var newViews = views
 
@@ -28,6 +26,6 @@ object AbstractPost {
     accumulatedViews
   }
 
-  def fixPoint(views: Set[Config], rules: Set[Rule], k: Int) =
+  def fixPoint(views: Set[ArrayBuffer[Int]], rules: Set[Rule], k: Int) =
     fixPointNaive(views, rules, k)
 }

@@ -1,7 +1,5 @@
 package uu_tool_1
 
-import uu_tool_1.Configuration.Config
-
 import scala.collection.mutable.{HashMap => MHashMap, MultiMap => MMultiMap, Set => MSet, ArrayBuffer}
 
 object Concretisation {
@@ -14,13 +12,13 @@ object Concretisation {
    * The good thing about the naive method is that it is simple to understand
    * so it can be used for testing other implementations.
    */
-  def naive(views: Set[Config], length: Int): Set[Config] = {
+  def naive(views: Set[ArrayBuffer[Int]], length: Int): Set[ArrayBuffer[Int]] = {
     val alphabet = views.foldLeft(Set[Int]())((acc, curr) => acc ++ curr.toSet).toArray
     val aLen = alphabet.length
 
-    val mSet = MSet[Config]()
+    val mSet = MSet[ArrayBuffer[Int]]()
 
-    def configForNum(num: Int, pos: Int): Config = {
+    def configForNum(num: Int, pos: Int): ArrayBuffer[Int] = {
       if (pos == 0) {
         ArrayBuffer(alphabet(num))
       } else {
@@ -38,7 +36,7 @@ object Concretisation {
     mSet.toSet
   }
 
-  def testCandidate(candidate: Config, views: MSet[Config]): Boolean = {
+  def testCandidate(candidate: ArrayBuffer[Int], views: MSet[ArrayBuffer[Int]]): Boolean = {
     var excludedState = candidate.head
     var excludedSwap = 0
     val currentView = candidate.tail
@@ -60,7 +58,7 @@ object Concretisation {
     res
   }
 
-  def findCandidates(views: Set[Config]): Set[Config] = {
+  def findCandidates(views: Set[ArrayBuffer[Int]]): Set[ArrayBuffer[Int]] = {
     println(views)
     Set()
   }

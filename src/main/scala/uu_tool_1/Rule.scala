@@ -1,7 +1,5 @@
 package uu_tool_1
 
-import uu_tool_1.Configuration.Config
-
 import scala.collection.mutable.ArrayBuffer
 
 abstract class Side
@@ -98,7 +96,7 @@ abstract class Rule(f: Int, t: Int) extends Ordered[Rule] {
    * @param index index of state to test in configuration
    * @return true iff configuration(index) == from
    */
-  def testFromState(configuration: Config, index: Int): Boolean = {
+  def testFromState(configuration: ArrayBuffer[Int], index: Int): Boolean = {
     configuration(index) == from
   }
 
@@ -108,7 +106,7 @@ abstract class Rule(f: Int, t: Int) extends Ordered[Rule] {
    * @param index index of state to test in configuration
    * @return true iff all conditions for the rule evaluate to true.
    */
-  def test(configuration: Config, index: Int): Boolean
+  def test(configuration: ArrayBuffer[Int], index: Int): Boolean
 
 
   /**
@@ -120,7 +118,7 @@ abstract class Rule(f: Int, t: Int) extends Ordered[Rule] {
    * @param index index of state to test and update
    * @return Some(updated configuration) if the rule test is successful, None otherwise.
    */
-  def testAndExecute(configuration: Config, index: Int): Option[Config] = {
+  def testAndExecute(configuration: ArrayBuffer[Int], index: Int): Option[ArrayBuffer[Int]] = {
     if (test(configuration, index)) {
       Some(configuration.updated(index, to))
     } else {
@@ -164,7 +162,7 @@ case class Unrestricted(f: Int, t: Int) extends Rule(f, t) {
    * @param index index of state to test in configuration
    * @return true iff the test state is equal to the from-state.
    */
-  def test(configuration: Config, index: Int): Boolean = testFromState(configuration, index)
+  def test(configuration: ArrayBuffer[Int], index: Int): Boolean = testFromState(configuration, index)
 }
 
 /**
@@ -217,7 +215,7 @@ abstract class QuantifierRule(f: Int, t: Int, st: Set[Int], si: Side, qs: String
    * @param index index of state in configuration to test from
    * @return true iff the quantifier condition is satisfied
    */
-  def testQuantifier(configuration: Config, index: Int): Boolean = {
+  def testQuantifier(configuration: ArrayBuffer[Int], index: Int): Boolean = {
     side match {
       case Left => Configuration.leftOf[Boolean](configuration, index, initialTestValue, testFunction)
       case Right => Configuration.rightOf[Boolean](configuration, index, initialTestValue, testFunction)
@@ -233,7 +231,7 @@ abstract class QuantifierRule(f: Int, t: Int, st: Set[Int], si: Side, qs: String
    * @param index index of state to test in configuration
    * @return true iff all conditions for the rule evaluate to true.
    */
-  def test(configuration: Config, index: Int): Boolean = {
+  def test(configuration: ArrayBuffer[Int], index: Int): Boolean = {
     testFromState(configuration, index) && testQuantifier(configuration, index)
   }
 }

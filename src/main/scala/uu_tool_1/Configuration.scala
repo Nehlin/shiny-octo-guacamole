@@ -22,8 +22,6 @@ import scala.collection.mutable.ArrayBuffer
  */
 object Configuration {
 
-  type Config = ArrayBuffer[Int]
-
   /**
    * Folds all states to the left of index with testFunction
    *
@@ -35,7 +33,7 @@ object Configuration {
    * @tparam A type of result
    * @return the result of the folding
    */
-  def leftOf[A](conf: Config,
+  def leftOf[A](conf: ArrayBuffer[Int],
                 index: Int,
                 initialVal: A,
                 testFunction: (A, Int) => A): A = {
@@ -56,7 +54,7 @@ object Configuration {
    * @tparam A type of result
    * @return the result of the folding
    */
-  def rightOf[A](conf: Config,
+  def rightOf[A](conf: ArrayBuffer[Int],
                 index: Int,
                 initialVal: A,
                 testFunction: (A, Int) => A): A = {
@@ -77,7 +75,7 @@ object Configuration {
    * @tparam A type of result
    * @return the result of the folding
    */
-  def bothSidesOf[A](conf: Config,
+  def bothSidesOf[A](conf: ArrayBuffer[Int],
                      index: Int,
                      initialVal: A,
                      testFunction: (A, Int) => A): A = {
@@ -100,7 +98,7 @@ object Configuration {
    * @param c2 second configuration
    * @return true iff c1 < c2
    */
-  def compareBool(c1: Config, c2: Config): Boolean = {
+  def compareBool(c1: ArrayBuffer[Int], c2: ArrayBuffer[Int]): Boolean = {
     compare(c1, c2) < 0
   }
 
@@ -115,7 +113,7 @@ object Configuration {
    * @param c2 second configuration
    * @return 0 if c1 == c2, -1 if c1 < c2, 1 if c1 > c2
    */
-  def compare(c1: Config, c2: Config): Int = {
+  def compare(c1: ArrayBuffer[Int], c2: ArrayBuffer[Int]): Int = {
     def statesComparison(l1: List[Int], l2: List[Int]): Int = {
       (l1, l2) match {
         case (h1 :: t1, h2 :: t2) =>
