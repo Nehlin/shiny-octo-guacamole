@@ -6,11 +6,8 @@ import scala.collection.mutable.ArrayBuffer
 object main {
 
   def main(args:Array[String]): Unit = {
-    val x = Concretisation.testCandidate(ArrayBuffer(1, 2, 3, 4, 5), scala.collection.mutable.Set(ArrayBuffer(1, 3, 4, 5), ArrayBuffer(2, 3, 4, 5), ArrayBuffer(1, 2, 4, 5), ArrayBuffer(1, 2, 3, 5)))
-    println(x)
-    val y = Concretisation.testCandidate(ArrayBuffer(1, 2, 3, 4, 5), scala.collection.mutable.Set(ArrayBuffer(1, 3, 4, 5), ArrayBuffer(2, 3, 4, 5), ArrayBuffer(1, 2, 4, 5), ArrayBuffer(1, 2, 3, 5), ArrayBuffer(1, 2, 3, 4)))
-    println(y)
-    Concretisation.findCandidates(Set(ArrayBuffer(1, 3, 4, 5), ArrayBuffer(2, 3, 4, 5), ArrayBuffer(1, 2, 4, 5), ArrayBuffer(1, 2, 3, 5)))
+    val views = Views.fromConfigurationFixed(ArrayBuffer(1, 2, 3, 4), None).toSet
+    Concretisation.findCandidates(views)
   }
 
   def main2(args:Array[String]): Unit = {

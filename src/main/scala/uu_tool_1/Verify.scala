@@ -1,7 +1,5 @@
 package uu_tool_1
 
-import uu_tool_1.Configuration.Config
-
 import scala.collection.mutable.ArrayBuffer
 
 /**
@@ -43,7 +41,7 @@ object Verify {
     var k = 1
     var result:Result = Unclear
 
-    def containsBadState(configurations: Set[Config]): Boolean = {
+    def containsBadState(configurations: Set[ArrayBuffer[Int]]): Boolean = {
       configurations.foldLeft(false)((res, config) => {
         if (res)
           res

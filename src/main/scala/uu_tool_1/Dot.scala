@@ -1,7 +1,5 @@
 package uu_tool_1
 
-import uu_tool_1.Configuration.Config
-
 import scala.collection.mutable.ArrayBuffer
 
 /**
@@ -124,7 +122,7 @@ object Dot {
    * @param internalToName conversion from internal state representation to original name
    * @return the .dot-string that represents configuration
    */
-  private def makeConfiguration(configuration: Config,
+  private def makeConfiguration(configuration: ArrayBuffer[Int],
                                 configIndex: Int,
                                 internalToName: Map[Int, String]): String = {
 
@@ -173,7 +171,7 @@ object Dot {
    * @param internalToName conversion from internal state representation to original name
    * @return .dot string with the graph-data of indexedConfigurations
    */
-  private def makeIndexedConfigurations(indexedConfigurations: List[(Config, Int)],
+  private def makeIndexedConfigurations(indexedConfigurations: List[(ArrayBuffer[Int], Int)],
                                     internalToName: Map[Int, String]): String = {
 
     indexedConfigurations.map{case(config, index) => makeConfiguration(config, index, internalToName)}.mkString
@@ -186,7 +184,7 @@ object Dot {
    * @param internalToName conversion from internal state representation to original name
    * @return .dot string with the graph-data of configurations
    */
-  def makeConfigurations(configurations: Set[Config], internalToName: Map[Int, String]): String = {
+  def makeConfigurations(configurations: Set[ArrayBuffer[Int]], internalToName: Map[Int, String]): String = {
     val sortedAndIndexed = configurations.toList.sortWith(Configuration.compareBool).zipWithIndex
     makeGraphStructure(makeIndexedConfigurations(sortedAndIndexed, internalToName))
   }
@@ -270,7 +268,7 @@ object Dot {
    * @return .dot-graph representing the series of posts represented by
    *         configsAndTransitions
    */
-  def makeConfigurationsWithTransitions(configsAndTransitions: Set[(Config, Int, Rule, Config)],
+  def makeConfigurationsWithTransitions(configsAndTransitions: Set[(ArrayBuffer[Int], Int, Rule, ArrayBuffer[Int])],
                                         internalToName: Map[Int, String]): String = {
 
     val lhs = configsAndTransitions.map{case(c, _, _, _) => c}
@@ -298,7 +296,7 @@ object Dot {
    * @param viewsPerRow number of views per row
    * @return a .dot-graph containing views positioned in a grid.
    */
-  def makeViews(views: Set[Config], internalToName: Map[Int, String], viewsPerRow: Int): String = {
+  def makeViews(views: Set[ArrayBuffer[Int]], internalToName: Map[Int, String], viewsPerRow: Int): String = {
     val sortedViews = views.toList.sortWith(Configuration.compareBool)
 
     val configs = makeIndexedConfigurations(sortedViews.zipWithIndex, internalToName)
