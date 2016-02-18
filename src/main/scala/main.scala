@@ -6,8 +6,44 @@ import scala.collection.mutable.ArrayBuffer
 object main {
 
   def main(args:Array[String]): Unit = {
-    val views = Views.fromConfigurationFixed(ArrayBuffer(1, 2, 3, 4), None).toSet
-    Concretisation.findCandidates(views)
+    val views = Views.fromConfigurationsFixed(Set(
+      ArrayBuffer(1, 2, 3, 4),
+      ArrayBuffer(2, 2, 3, 5),
+      ArrayBuffer(1, 2, 4, 5),
+      ArrayBuffer(1, 2, 2, 5)
+
+    ), None)
+
+    val n = 1000
+
+    def f1() = {
+      var i = 0
+      while (i < n) {
+        Concretisation.make(views)
+        i += 1
+      }
+    }
+
+    def f2() = {
+      var i = 0
+      while (i < n) {
+        Concretisation.naive(views, 3)
+        i += 1
+      }
+    }
+
+    timeFunction(f1, "good")
+    timeFunction(f2, "naive")
+    timeFunction(f2, "naive")
+    timeFunction(f1, "good")
+    timeFunction(f1, "good")
+    timeFunction(f2, "naive")
+    timeFunction(f2, "naive")
+    timeFunction(f1, "good")
+
+    val test = Concretisation.make(views).toList.sortWith(Configuration.compareBool)
+    val test2 = Concretisation.naive(views, 3).toList.sortWith(Configuration.compareBool)
+
   }
 
   def main2(args:Array[String]): Unit = {

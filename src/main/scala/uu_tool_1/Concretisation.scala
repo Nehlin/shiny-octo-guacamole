@@ -1,5 +1,6 @@
 package uu_tool_1
 
+import scala.collection.immutable.HashMap
 import scala.collection.mutable.{HashMap => MHashMap, MultiMap => MMultiMap, Set => MSet, ArrayBuffer}
 
 object Concretisation {
@@ -36,7 +37,7 @@ object Concretisation {
     mSet.toSet
   }
 
-  def testCandidate(candidate: ArrayBuffer[Int], views: MSet[ArrayBuffer[Int]]): Boolean = {
+  def testCandidate(candidate: ArrayBuffer[Int], views: Set[ArrayBuffer[Int]]): Boolean = {
     var excludedState = candidate.head
     var excludedSwap = 0
     val currentView = candidate.tail
@@ -49,7 +50,6 @@ object Concretisation {
         currentView(i) = excludedState
         excludedState = excludedSwap
       }
-      println(currentView, views.contains(currentView))
       res = views.contains(currentView)
 
       i += 1
@@ -59,8 +59,28 @@ object Concretisation {
   }
 
   def findCandidates(views: Set[ArrayBuffer[Int]]): Set[ArrayBuffer[Int]] = {
-    println(views)
-    Set()
+    val matchMap = views.map(view => {
+      (view.take(view.length - 1), view.last)
+    }).foldLeft(new MHashMap[ArrayBuffer[Int], MSet[Int]] with MMultiMap[ArrayBuffer[Int], Int]){
+      case (acc, (arrKey, intVal)) => acc.addBinding(arrKey, intVal)
+    }
+
+    def newView(oldView: ArrayBuffer[Int], ending: Int): ArrayBuffer[Int] = {
+      val nv = oldView.clone()
+      nv.append(ending)
+      nv
+    }
+
+    views.map(view => {
+      matchMap.get(view.tail) map (endings => {
+        endings.map(ending => newView(view, ending))
+      })
+    }).flatten.flatten
+  }
+
+  def make(views: Set[ArrayBuffer[Int]]): Set[ArrayBuffer[Int]] = {
+    val candidates = findCandidates(views)
+    candidates.filter(testCandidate(_, views))
   }
 /*
   type RoMap = MHashMap[Int, MSet[Config]] with MMultiMap[Int, Config]
