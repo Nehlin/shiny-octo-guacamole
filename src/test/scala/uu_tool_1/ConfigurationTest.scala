@@ -1,3 +1,5 @@
+package uu_tool_1
+
 import org.scalatest._
 import uu_tool_1.Configuration
 import scala.collection.mutable.ArrayBuffer

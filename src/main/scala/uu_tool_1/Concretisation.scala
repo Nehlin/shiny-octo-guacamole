@@ -5,13 +5,18 @@ import scala.collection.mutable.{HashMap => MHashMap, MultiMap => MMultiMap, Set
 
 object Concretisation {
 
-  /* Naive concretisation function. Note that this code needs to be replaced
+  /**
+   * Naive concretisation function. Note that this code needs to be replaced
    * for the final version. This is slow and can be rewritten with far better
    * performance. See this as placeholder code so that work can continue until
    * the real concretisation is implemented.
    *
    * The good thing about the naive method is that it is simple to understand
    * so it can be used for testing other implementations.
+   *
+   * @param views views to generate concretisation from
+   * @param length length of views. length of concretisation is this length + 1
+   * @return the concretisation of views.
    */
   def naive(views: Set[ArrayBuffer[Int]], length: Int): Set[ArrayBuffer[Int]] = {
     val alphabet = views.foldLeft(Set[Int]())((acc, curr) => acc ++ curr.toSet).toArray
@@ -37,6 +42,15 @@ object Concretisation {
     mSet.toSet
   }
 
+  /**
+   * A valid candidate of length n is a candidate where all subviews of length n-1 exist in views.
+   *
+   * Only views of length n-1 needs to be checked, since smaller views are subviews of these views.
+   *
+   * @param candidate potential new view of length n
+   * @param views existing views of length n - 1
+   * @return true iff all subviews of candidate of length n - 1 exist in views.
+   */
   def testCandidate(candidate: ArrayBuffer[Int], views: Set[ArrayBuffer[Int]]): Boolean = {
     var excludedState = candidate.head
     var excludedSwap = 0
@@ -58,117 +72,58 @@ object Concretisation {
     res
   }
 
-  def findCandidates(views: Set[ArrayBuffer[Int]]): Set[ArrayBuffer[Int]] = {
+  /**
+   * A valid candidate is any view (a, b, c, d) where the view (a, b, c) and the
+   * view (b, c, d) exist in views and the candidate is not already in preComputed
+   *
+   * @param views existing views to find candidates from.
+   * @param preComputed set of already explored views.
+   * @return set of all candidates that satisfies the requirements.
+   */
+  def findCandidates(views: Set[ArrayBuffer[Int]], preComputed: Set[ArrayBuffer[Int]]): Set[ArrayBuffer[Int]] = {
+    /*
+     * matchMap will contain all endings for a prefix. For the views (1, 2, 3),
+     * (1, 2, 4), (5, 6, 7) it will be the map (1, 2) -> {3, 4}, (5, 6) -> {7}
+     */
     val matchMap = views.map(view => {
       (view.take(view.length - 1), view.last)
     }).foldLeft(new MHashMap[ArrayBuffer[Int], MSet[Int]] with MMultiMap[ArrayBuffer[Int], Int]){
       case (acc, (arrKey, intVal)) => acc.addBinding(arrKey, intVal)
     }
 
-    def newView(oldView: ArrayBuffer[Int], ending: Int): ArrayBuffer[Int] = {
+    def newView(oldView: ArrayBuffer[Int], ending: Int): Option[ArrayBuffer[Int]] = {
       val nv = oldView.clone()
       nv.append(ending)
-      nv
+      if (preComputed.contains(nv)) {
+        None
+      } else{
+        Some(nv)
+      }
     }
 
+    /*
+     * matches the beginning of the views to the endings computed in matchMap
+     */
     views.map(view => {
-      matchMap.get(view.tail) map (endings => {
+      matchMap.get(view.tail).map(endings => {
         endings.map(ending => newView(view, ending))
       })
-    }).flatten.flatten
+    }).flatten.flatten.flatten
   }
 
-  def make(views: Set[ArrayBuffer[Int]]): Set[ArrayBuffer[Int]] = {
-    val candidates = findCandidates(views)
+  /**
+   * Generates every view v of length n that satisfies the following:
+   * - each subview of v of length n - 1 is present in views
+   * - v is not present in preComputed
+   *
+   * @param views set of views to concretise
+   * @param preComputed set of already explored views that should be ignored
+   * @return the concretisation of views
+   */
+  def make(views: Set[ArrayBuffer[Int]], preComputed: Set[ArrayBuffer[Int]]): Set[ArrayBuffer[Int]] = {
+    val candidates = findCandidates(views, preComputed)
     candidates.filter(testCandidate(_, views))
   }
-/*
-  type RoMap = MHashMap[Int, MSet[Config]] with MMultiMap[Int, Config]
 
-  def addToRoMap(views: Set[Config], roMap: RoMap): Unit = {
-    views.map(view => {
-      val key = view.head
-      roMap.addBinding(key, view.drop(1))
-    })
-  }
 
-  def makeRoMap(views: Set[Config]): RoMap = {
-    val roMap = new MHashMap[Int, MSet[Config]] with MMultiMap[Int, Config]
-
-    addToRoMap(views, roMap)
-
-    roMap
-  }
-
-  def generate(views: Set[Config],
-               roMap: RoMap,
-               existing: MSet[Config]): Set[Config] = {
-
-    // All views should be of equal length, so this is valid.
-    val viewLength = views.head.length
-
-    // Create once and reuse
-    val currentCandidate = ArrayBuffer.fill(viewLength + 1){0}
-
-    def generateCandidates(view: Config): Option[MSet[Config]] = {
-
-      val firstState = view.head
-      val secondState = view.tail.head
-
-      def updateCurrentCandidate(first: Int, second: Int, rest: Config): Config = {
-        currentCandidate(0) = first
-        currentCandidate(1) = second
-        (0 until rest.length).foreach(index => currentCandidate(index + 2) = rest(index))
-        currentCandidate
-      }
-
-      if (roMap.isDefinedAt(secondState)) {
-        val endings = roMap(secondState)
-        val candidates = for (ending <- endings
-          if !existing.contains(updateCurrentCandidate(firstState, secondState, ending))
-        ) yield {
-          currentCandidate.clone()
-        }
-        if (candidates.nonEmpty) {
-          Some(candidates)
-        } else {
-          None
-        }
-      } else {
-        None
-      }
-    }
-
-    val testView = ArrayBuffer.fill(viewLength)(0)
-    var excludedState = 0
-
-    def testCandidate(candidate: Config, existing: MSet[Config]): Boolean = {
-
-      def testCandidate_(pos: Int): Boolean = {
-        if (pos == candidate.length) {
-          true
-        } else {
-          if (pos > 0) {
-            val newExcluded = testView(pos - 1)
-            testView(pos - 1) = excludedState
-            excludedState = newExcluded
-          }
-          if (views.contains(testView)) {
-            testCandidate_(pos + 1)
-          } else {
-            false
-          }
-        }
-      }
-
-      excludedState = candidate.head
-      for (i <- 0 until testView.length) {
-        testView(i) = candidate(i + 1)
-      }
-      testCandidate_(0)
-    }
-
-    val candidates = views.map(generateCandidates).flatten.flatten
-    candidates.filter(candidate => testCandidate(candidate, existing))
-  }*/
 }

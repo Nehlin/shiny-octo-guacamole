@@ -83,11 +83,11 @@ class ViewsTest extends FlatSpec with Matchers {
   val o:Option[Set[ArrayBuffer[Int]]] = Some(Set(ArrayBuffer(1, 3)))
 
   "Views" should "ignore existing views" in {
-    Views.fromConfigurationFixed(c2, Some(MSet(ArrayBuffer(1, 3)))) should be (Set(
+    Views.fromConfigurationFixed(c2, Some(Set(ArrayBuffer(1, 3)))) should be (Set(
       ArrayBuffer(1, 2),
       ArrayBuffer(2, 3)
     ))
-    Views.fromConfigurationFixed(c4, Some(MSet(
+    Views.fromConfigurationFixed(c4, Some(Set(
       ArrayBuffer(6, 8, 9, 10),
       ArrayBuffer(6, 7, 8, 9)
     ))) should be (Set(

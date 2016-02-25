@@ -5,48 +5,8 @@ import scala.collection.mutable.ArrayBuffer
 
 object main {
 
+
   def main(args:Array[String]): Unit = {
-    val views = Views.fromConfigurationsFixed(Set(
-      ArrayBuffer(1, 2, 3, 4),
-      ArrayBuffer(2, 2, 3, 5),
-      ArrayBuffer(1, 2, 4, 5),
-      ArrayBuffer(1, 2, 2, 5)
-
-    ), None)
-
-    val n = 1000
-
-    def f1() = {
-      var i = 0
-      while (i < n) {
-        Concretisation.make(views)
-        i += 1
-      }
-    }
-
-    def f2() = {
-      var i = 0
-      while (i < n) {
-        Concretisation.naive(views, 3)
-        i += 1
-      }
-    }
-
-    timeFunction(f1, "good")
-    timeFunction(f2, "naive")
-    timeFunction(f2, "naive")
-    timeFunction(f1, "good")
-    timeFunction(f1, "good")
-    timeFunction(f2, "naive")
-    timeFunction(f2, "naive")
-    timeFunction(f1, "good")
-
-    val test = Concretisation.make(views).toList.sortWith(Configuration.compareBool)
-    val test2 = Concretisation.naive(views, 3).toList.sortWith(Configuration.compareBool)
-
-  }
-
-  def main2(args:Array[String]): Unit = {
     val parameters = new Parameters(args)
 
     val protocolFile = parameters.getProtocolFile
@@ -103,7 +63,16 @@ object main {
 
 
   /**
-   * Times and prints the execution of f.
+   * Times and prints the execution of f. Not very reliable when comparing two
+   * functions to figure out which is faster. To get a usable result when comparing
+   * two functions (f1, f2), make sure you do something like this:
+   * timeFunction(f1)
+   * timeFunction(f2)
+   * timeFunction(f2)
+   * timeFunction(f1)
+   *
+   * This usually gives a decent idea of which task is faster, at least if the tasks
+   * take some considerable time (use a loop inside f1 and f2)
    * @param f function to time
    */
   def timeFunction[A](f: () => A, taskName: String): A = {

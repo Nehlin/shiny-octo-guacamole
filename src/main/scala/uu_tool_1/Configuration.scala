@@ -19,6 +19,10 @@ import scala.collection.mutable.ArrayBuffer
  * NOTE: the comparison functions are kind of slow and should not be used other than for
  * debugging or generating .dot-files.
  *
+ * NOTE: while a type definition seem like it would be useful, Scala typedefs have
+ * problems (in some cases of object creation), so I chose to simply use ArrayBuffer[Int]
+ * instead of defining it as a type.
+ *
  */
 object Configuration {
 

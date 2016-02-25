@@ -107,11 +107,12 @@ object Views {
    *         existing
    */
   def fromConfigurationFixed(configuration: ArrayBuffer[Int],
-                             existing: Option[MSet[ArrayBuffer[Int]]]): MSet[ArrayBuffer[Int]] = {
+                             existing: Option[Set[ArrayBuffer[Int]]]): Set[ArrayBuffer[Int]] = {
 
 
     var excludedState = configuration.head
     val currentView = configuration.tail
+    // currentView is used so that object creation only occurs when new item is found.
     def updateCurrentView(pos: Int): ArrayBuffer[Int] = {
       val pm1 = pos - 1
       if (pm1 >= 0) {
@@ -122,16 +123,15 @@ object Views {
       currentView
     }
 
-    val res = MSet[ArrayBuffer[Int]]()
-
-    (0 until configuration.length).foreach(index => {
+    (0 until configuration.length).map(index => {
       updateCurrentView(index)
       if (!existing.isDefined || !existing.get.contains(currentView)) {
-        res.add(currentView.clone())
+        Some(currentView.clone())
+      } else {
+        None
       }
-    })
+    }).flatten.toSet
 
-    res
   }
 
   /**
@@ -146,7 +146,7 @@ object Views {
    *         existing
    */
   def fromConfigurationsFixed(configurations: Set[ArrayBuffer[Int]],
-                              existing: Option[MSet[ArrayBuffer[Int]]]): Set[ArrayBuffer[Int]] = {
+                              existing: Option[Set[ArrayBuffer[Int]]]): Set[ArrayBuffer[Int]] = {
 
     configurations.map(configuration => fromConfigurationFixed(configuration, existing)).flatten
   }

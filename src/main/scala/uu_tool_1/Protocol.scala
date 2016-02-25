@@ -105,6 +105,6 @@ class Protocol(fileName:String) {
 
   val rules = ruleLines.map(ruleString => parseRule(ruleString)).toSet
   def initialConfiguration(length: Int): ArrayBuffer[Int] =
-    ArrayBuffer.fill(initialConfigurationState)(length)
+    ArrayBuffer.fill(length)(initialConfigurationState)
   val badConfiguration = parseBadConfiguration(badConfigurationLine)
 }

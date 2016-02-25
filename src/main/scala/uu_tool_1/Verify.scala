@@ -51,24 +51,41 @@ object Verify {
       })
     }
 
-    def testForK(k: Int): Result = {
+    /**
+     * Tests the protocol for configurations of size k.
+     *
+     * @param k size of configurations to test for
+     * @param preComputed optional resulting views from doing post on k. This is here
+     *                    since testing abstract post for k computes normal post for
+     *                    k+1, so this is a way to reuse this value. If this value is
+     *                    present, it will be used, if not, it will be computed.
+     * @return the result, of testing for k. If the result is conclusive (Safe, Unsafe)
+     *         nothing else is computed. If Unclear, post for k+1 has been computed, so
+     *         this result is returned, so it can be reused for the next iteration.
+     */
+    def testForK(k: Int, preComputed: Option[Set[ArrayBuffer[Int]]]): (Result, Option[Set[ArrayBuffer[Int]]]) = {
       val initialConfiguration = Set(protocol.initialConfiguration(k))
-      val postConfigs = Post.fixPoint(initialConfiguration, protocol.rules)
+      val postConfigs = preComputed.getOrElse(Post.fixPoint(initialConfiguration, protocol.rules))
       if (containsBadState(postConfigs)) {
-        Unsafe
+        (Unsafe, None)
       } else {
-        val aPostConfigs = AbstractPost.fixPoint(initialConfiguration, protocol.rules, k)
+        val nextInitialConfiguration = Set(protocol.initialConfiguration(k + 1))
+        val nextPostResult = Post.fixPoint(nextInitialConfiguration, protocol.rules)
+        val aPostConfigs = AbstractPost.fixPoint(initialConfiguration, protocol.rules, nextPostResult)
         if (!containsBadState(aPostConfigs)) {
-          Safe
+          (Safe, None)
         } else {
-          Unclear
+          (Unclear, Some(nextPostResult))
         }
       }
     }
 
+    var preComputedPost: Option[Set[ArrayBuffer[Int]]] = None
     while(k < maxK && result == Unclear) {
       k += 1
-      result = testForK(k)
+      val (res, nextPost) = testForK(k, preComputedPost)
+      result = res
+      preComputedPost = nextPost
     }
 
     (result, k)
